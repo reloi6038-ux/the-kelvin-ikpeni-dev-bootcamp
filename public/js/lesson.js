@@ -1,7 +1,7 @@
 // ============================================================
 // public/js/lesson.js
 // Lesson viewer: fetch lesson, render markdown, sidebar, prev/next.
-// Requires: api.js, main.js, auth.js, enroll.js
+// Requires: api.js, main.js, auth.js, enroll.js, ide.js
 // ============================================================
 
 (function () {
@@ -21,6 +21,7 @@
   const breadcrumb = document.getElementById("breadcrumb");
   const markBar = document.getElementById("mark-complete-bar");
   const navEl = document.getElementById("lesson-nav");
+  const ideRoot = document.getElementById("ide-root");
 
   if (!courseSlug || !lessonSlug) {
     showFatal("Invalid lesson URL — course and lesson are required.");
@@ -46,8 +47,7 @@
       if (sepIdx === -1) return block;
 
       const headerCells = lines[0].split("|").slice(1, -1).map((s) => s.trim());
-      const rowLines = lines.slice(sepIdx + 1);
-      const rows = rowLines.map((l) =>
+      const rows = lines.slice(sepIdx + 1).map((l) =>
         l.split("|").slice(1, -1).map((s) => s.trim())
       );
 
@@ -114,6 +114,16 @@
     layout.style.display = "none";
   }
 
+  // Expose callback for the IDE to trigger completion
+  window.__lessonOnComplete = function () {
+    if (markBar) {
+      markBar.style.display = "flex";
+      markBar.innerHTML = `<p style="margin:0; color: var(--success); font-weight:600;">✅ You've completed this lesson</p>`;
+    }
+    loadTree();
+  };
+
+  // --- Load everything ---
   (async function load() {
     try {
       const data = await apiRequest(
@@ -122,12 +132,14 @@
 
       const { course, lesson, previous, next, position, completed, enrolled } = data;
 
+      // Header
       document.title = `${lesson.title} — ${course.title}`;
       titleEl.textContent = lesson.title;
       durationEl.textContent = `⏱ ${lesson.estimatedMinutes} min read`;
       positionEl.textContent = `Lesson ${position.index} of ${position.total}`;
       contentEl.innerHTML = renderMarkdown(lesson.content || "");
 
+      // Breadcrumb
       breadcrumb.innerHTML = `
         <a href="/courses.html">Courses</a>
         <span>›</span>
@@ -136,6 +148,7 @@
         <span>${escapeHtml(lesson.title)}</span>
       `;
 
+      // Prev / next
       navEl.innerHTML = "";
       if (previous) {
         navEl.innerHTML += `
@@ -154,6 +167,12 @@
           </a>`;
       }
 
+      // Mount IDE if exercise enabled
+      if (lesson.exercise && lesson.exercise.enabled && window.ideController) {
+        await window.ideController.mount(lesson);
+      }
+
+      // Mark complete bar
       const user = await auth.me();
       if (!user) {
         markBar.innerHTML = `
@@ -170,6 +189,9 @@
       } else if (completed) {
         markBar.innerHTML = `
           <p style="margin:0; color: var(--success); font-weight:600;">✅ You've completed this lesson</p>`;
+      } else if (lesson.exercise && lesson.exercise.enabled) {
+        // Exercise lessons: completion happens via the IDE test runner
+        markBar.style.display = "none";
       } else {
         markBar.innerHTML = `
           <button class="btn btn-primary" id="mark-complete-btn">Mark as complete</button>`;
@@ -198,6 +220,7 @@
     }
   })();
 
+  // --- Sidebar tree ---
   async function loadTree() {
     try {
       const tree = await apiRequest(`/api/lessons/${encodeURIComponent(courseSlug)}`);

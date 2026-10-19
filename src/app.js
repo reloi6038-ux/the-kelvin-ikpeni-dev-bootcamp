@@ -19,6 +19,7 @@ const authRoutes = require("./routes/auth");
 const enrollmentRoutes = require("./routes/enrollments");
 const progressRoutes = require("./routes/progress");
 const lessonRoutes = require("./routes/lessons");
+const exerciseRoutes = require("./routes/exercises");
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -45,7 +46,7 @@ function createApp() {
   // ---- Global API rate limit ----
   app.use("/api", apiLimiter);
 
-  // ---- CSRF protection ----
+  // ---- CSRF protection on state-changing requests ----
   app.use("/api", verifyCsrf);
 
   // ---- Static assets ----
@@ -58,8 +59,9 @@ function createApp() {
   app.use("/api/enrollments", enrollmentRoutes);
   app.use("/api/progress", progressRoutes);
   app.use("/api/lessons", lessonRoutes);
+  app.use("/api/exercises", exerciseRoutes);
 
-  // ---- HTML page routes ----
+  // ---- HTML page routes (clean URLs) ----
   const sendPage = (file) => (req, res) =>
     res.sendFile(path.join(__dirname, "..", "public", file));
 
@@ -73,10 +75,10 @@ function createApp() {
   app.get("/register", sendPage("register.html"));
   app.get("/dashboard", sendPage("dashboard.html"));
 
-  // ---- API 404 ----
+  // ---- API 404 (JSON) ----
   app.use("/api", notFound);
 
-  // ---- Page 404 ----
+  // ---- Page 404 (branded HTML) ----
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "..", "public", "404.html"));
   });
