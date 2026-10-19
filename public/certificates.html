@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Certificates — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+        <li><a href="/certificates.html">Certificates</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>My Certificates</h1>
+        <p>Your earned credentials from The Kelvin Ikpeni Dev Bootcamp.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="certs-error" class="state-message error" style="display:none;"></div>
+        <div id="certs-grid" class="courses-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/certificates.js"></script>
+</body>
+</html>

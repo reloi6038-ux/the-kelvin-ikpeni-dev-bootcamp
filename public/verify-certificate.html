@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Certificate — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: var(--sp-10);">
+      <div class="container" style="max-width: 640px;">
+        <div style="text-align:center; margin-bottom: var(--sp-8);">
+          <h1>Certificate Verification</h1>
+          <p style="color: var(--text-muted);">Enter a certificate ID to verify its authenticity.</p>
+        </div>
+
+        <form id="verify-form" class="form">
+          <div class="form-group">
+            <label for="cert-id">Certificate ID</label>
+            <input type="text" id="cert-id" name="id" placeholder="KIDB-2026-A1B2C3" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Verify</button>
+        </form>
+
+        <div id="verify-result" style="margin-top: var(--sp-6);"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const idFromUrl = params.get("id");
+      const input = document.getElementById("cert-id");
+      const form = document.getElementById("verify-form");
+      const result = document.getElementById("verify-result");
+
+      if (idFromUrl) {
+        input.value = idFromUrl;
+        verify(idFromUrl);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        verify(input.value.trim());
+      });
+
+      async function verify(id) {
+        if (!id) return;
+        result.innerHTML = `<div class="state-message"><div class="spinner"></div><p>Verifying...</p></div>`;
+        try {
+          const data = await apiRequest(`/api/certificates/verify/${encodeURIComponent(id)}`);
+          const c = data.certificate;
+
+          if (c.revoked) {
+            result.innerHTML = `
+              <div class="course-card" style="border-color: var(--danger); padding: var(--sp-6);">
+                <h2 style="color: var(--danger); margin: 0 0 var(--sp-3);">⚠ Certificate Revoked</h2>
+                <p><strong>${escapeHtml(c.studentName)}</strong> — ${escapeHtml(c.courseTitle)}</p>
+                <p style="color: var(--text-muted);">
+                  This certificate was revoked on
+                  ${new Date(c.revokedAt).toLocaleDateString()}.
+                </p>
+                ${c.revocationReason ? `<p style="color: var(--text-muted);">Reason: ${escapeHtml(c.revocationReason)}</p>` : ""}
+                <p style="font-family: var(--font-mono);">${escapeHtml(c.certificateId)}</p>
+              </div>`;
+          } else {
+            result.innerHTML = `
+              <div class="course-card" style="border-color: var(--success); padding: var(--sp-6);">
+                <h2 style="color: var(--success); margin: 0 0 var(--sp-3);">✓ Valid Certificate</h2>
+                <p><strong>Awarded to:</strong> ${escapeHtml(c.studentName)}</p>
+                <p><strong>Course:</strong> ${escapeHtml(c.courseTitle)}</p>
+                <p><strong>Issued:</strong> ${new Date(c.issuedAt).toLocaleDateString()}</p>
+                <p style="font-family: var(--font-mono); color: var(--primary);">${escapeHtml(c.certificateId)}</p>
+              </div>`;
+          }
+        } catch (err) {
+          result.innerHTML = `
+            <div class="course-card" style="border-color: var(--danger); padding: var(--sp-6);">
+              <h2 style="color: var(--danger); margin: 0 0 var(--sp-3);">✗ Certificate Not Found</h2>
+              <p style="color: var(--text-muted);">${escapeHtml(err.message || "No certificate matches this ID.")}</p>
+            </div>`;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -20,6 +20,7 @@
         <li><a href="/">Home</a></li>
         <li><a href="/courses.html">Courses</a></li>
         <li><a href="/dashboard.html">Dashboard</a></li>
+        <li><a href="/certificates.html">Certificates</a></li>
       </ul>
       <div class="nav-cta">
         <button class="btn btn-secondary" id="logout-btn">Log out</button>
@@ -31,7 +32,7 @@
     <section class="page-header">
       <div class="container">
         <h1 id="welcome-heading">Welcome...</h1>
-        <p>Here's where your learning journey continues.</p>
+        <p>Track your progress and continue learning.</p>
       </div>
     </section>
 
@@ -40,6 +41,7 @@
         <div id="dashboard-error" class="state-message error" style="display:none;"></div>
 
         <div id="dashboard-content" style="display:none;">
+          <!-- Profile -->
           <h2>Your profile</h2>
           <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8);">
             <p><strong>Name:</strong> <span id="profile-name">—</span></p>
@@ -48,10 +50,23 @@
             <p><strong>Joined:</strong> <span id="profile-joined">—</span></p>
           </div>
 
-          <h2>Enrolled courses</h2>
-          <div class="state-message" style="margin-bottom: var(--sp-8);">
-            You have not enrolled in any courses yet.
-            <br /><a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a>
+          <!-- Enrolled courses -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-4);">
+            <h2 style="margin:0;">Your courses</h2>
+            <a href="/courses.html" class="btn btn-secondary">+ Enroll in more</a>
+          </div>
+
+          <div id="enrolled-grid" class="courses-grid">
+            <!-- Filled by JS -->
+          </div>
+
+          <!-- Certificates -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin: var(--sp-8) 0 var(--sp-4);">
+            <h2 style="margin:0;">Your certificates</h2>
+            <a href="/certificates.html" class="btn btn-secondary">View all →</a>
+          </div>
+          <div id="certs-preview" class="courses-grid">
+            <!-- Filled by JS -->
           </div>
         </div>
       </div>
@@ -61,6 +76,7 @@
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/enroll.js"></script>
   <script>
     (async function () {
       const errEl = document.getElementById("dashboard-error");
@@ -79,6 +95,85 @@
         document.getElementById("profile-joined").textContent = user.createdAt
           ? new Date(user.createdAt).toLocaleDateString()
           : "—";
+
+        // ---- Load enrolled courses ----
+        const grid = document.getElementById("enrolled-grid");
+        const list = await enrollment.list();
+
+        if (!list.enrollments.length) {
+          grid.innerHTML = `
+            <div class="state-message" style="grid-column: 1 / -1;">
+              You haven't enrolled in any courses yet.
+              <br />
+              <a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a>
+            </div>`;
+        } else {
+          grid.innerHTML = list.enrollments
+            .map((enr) => {
+              const p = enr.progress;
+              return `
+                <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(enr.course.slug)}">
+                  <span class="course-card-level ${escapeHtml(enr.course.level)}">${escapeHtml(enr.course.level)}</span>
+                  <h3>${escapeHtml(enr.course.title)}</h3>
+                  <p class="course-card-desc">${escapeHtml(enr.course.description)}</p>
+                  <div style="margin-top:auto;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color: var(--text-muted); margin-bottom: var(--sp-2);">
+                      <span>Progress</span>
+                      <span>${p.completed} / ${p.total} lessons</span>
+                    </div>
+                    <div style="background: var(--bg-elevated); border-radius: var(--r-full); height: 8px; overflow: hidden;">
+                      <div style="height:100%; width:${p.percent}%; background: linear-gradient(90deg, var(--primary), #7c5cff);"></div>
+                    </div>
+                    <div style="margin-top: var(--sp-2); font-weight:600; color: var(--primary);">
+                      ${p.percent}% complete
+                    </div>
+                  </div>
+                </a>`;
+            })
+            .join("");
+        }
+
+        // ---- Load certificates ----
+        try {
+          const certs = await apiRequest("/api/certificates");
+          const preview = document.getElementById("certs-preview");
+          if (!certs.certificates || certs.certificates.length === 0) {
+            preview.innerHTML = `
+              <div class="state-message" style="grid-column: 1 / -1; padding: var(--sp-6);">
+                No certificates yet — complete a course and pass its final exam to earn one.
+              </div>`;
+          } else {
+            preview.innerHTML = certs.certificates
+              .slice(0, 3)
+              .map(
+                (c) => `
+                  <div class="course-card">
+                    <div class="course-card-icon" aria-hidden="true">🎓</div>
+                    <h3>${escapeHtml(c.courseTitle)}</h3>
+                    <p class="course-card-desc">
+                      Awarded to <strong>${escapeHtml(c.studentName)}</strong><br>
+                      Issued: ${new Date(c.issuedAt).toLocaleDateString()}<br>
+                      ${c.revoked ? `<span style="color: var(--danger);">⚠ Revoked</span>` : `<span style="color: var(--success);">✓ Valid</span>`}
+                    </p>
+                    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--primary); margin-bottom: var(--sp-3);">
+                      ${escapeHtml(c.certificateId)}
+                    </p>
+                    <div style="display:flex; gap: var(--sp-2); flex-wrap:wrap; margin-top:auto;">
+                      ${c.revoked
+                        ? `<button class="btn btn-secondary" disabled>Unavailable</button>`
+                        : `<a class="btn btn-primary" href="/api/certificates/${encodeURIComponent(c.certificateId)}/download">⬇ PDF</a>`}
+                      <a class="btn btn-secondary" href="/verify-certificate.html?id=${encodeURIComponent(c.certificateId)}">Verify</a>
+                    </div>
+                  </div>`
+              )
+              .join("");
+          }
+        } catch (certErr) {
+          document.getElementById("certs-preview").innerHTML = `
+            <div class="state-message" style="grid-column: 1 / -1;">
+              Could not load certificates.
+            </div>`;
+        }
 
         content.style.display = "block";
       } catch (err) {

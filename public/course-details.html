@@ -57,6 +57,9 @@
               Checking enrollment...
             </button>
             <p id="enroll-status" style="margin-top: var(--sp-3); color: var(--text-muted); font-size: 0.9rem; text-align:center;"></p>
+
+            <!-- Certificate area (filled by JS) -->
+            <div id="cert-area" style="margin-top: var(--sp-4);"></div>
           </aside>
         </div>
       </div>
@@ -86,6 +89,7 @@
       const enrollStatus = document.getElementById("enroll-status");
       const progressEl = document.getElementById("sidebar-progress");
       const navAuth = document.getElementById("nav-auth-cta");
+      const certArea = document.getElementById("cert-area");
 
       if (!slug) {
         titleEl.textContent = "Course not specified";
@@ -94,12 +98,15 @@
       }
 
       let courseId = null;
+      let courseTitle = "";
 
+      // ---- Load course content ----
       try {
         const data = await apiRequest(`/api/courses/${encodeURIComponent(slug)}`);
         const course = data.course;
         const modules = data.modules || [];
         courseId = course._id;
+        courseTitle = course.title;
 
         document.title = `${course.title} — The Kelvin Ikpeni Dev Bootcamp`;
         titleEl.textContent = course.title;
@@ -147,7 +154,7 @@
         return;
       }
 
-      // Auth + enrollment check
+      // ---- Auth + enrollment check ----
       const user = await auth.me();
       if (!user) {
         enrollBtn.textContent = "Log in to enroll";
@@ -162,11 +169,14 @@
         <a href="/dashboard.html" class="btn btn-secondary">Dashboard</a>
       `;
 
+      let isEnrolled = false;
+
       try {
         const list = await enrollment.list();
         const existing = list.enrollments.find((e) => e.course.slug === slug);
 
         if (existing) {
+          isEnrolled = true;
           enrollBtn.textContent = "Continue learning";
           enrollBtn.disabled = false;
           enrollBtn.addEventListener("click", () => {
@@ -200,6 +210,64 @@
         enrollBtn.textContent = "Enroll Now";
         enrollBtn.disabled = false;
         enrollStatus.textContent = "Could not check enrollment status.";
+      }
+
+      // ---- Certificate eligibility / claim ----
+      if (isEnrolled) {
+        try {
+          const certsRes = await apiRequest("/api/certificates");
+          const existingCert = (certsRes.certificates || []).find(
+            (c) => c.courseId === courseId || c.courseTitle === courseTitle
+          );
+
+          if (existingCert) {
+            certArea.innerHTML = `
+              <a href="/api/certificates/${encodeURIComponent(existingCert.certificateId)}/download"
+                 class="btn btn-primary" style="width:100%;">
+                🎓 Download Certificate
+              </a>
+              <a href="/verify-certificate.html?id=${encodeURIComponent(existingCert.certificateId)}"
+                 class="btn btn-secondary mt-2" style="width:100%;">
+                Verify Certificate
+              </a>
+              <p style="margin-top: var(--sp-2); font-size:0.8rem; color: var(--text-dim); text-align:center; font-family: var(--font-mono);">
+                ${escapeHtml(existingCert.certificateId)}
+              </p>
+            `;
+          } else {
+            certArea.innerHTML = `
+              <button id="claim-cert-btn" class="btn btn-secondary" style="width:100%;">
+                🎓 Claim Certificate
+              </button>
+              <p id="claim-cert-status" style="margin-top: var(--sp-2); font-size:0.85rem; color: var(--text-muted); text-align:center;"></p>
+            `;
+
+            const claimBtn = document.getElementById("claim-cert-btn");
+            const claimStatus = document.getElementById("claim-cert-status");
+
+            claimBtn.addEventListener("click", async () => {
+              claimBtn.disabled = true;
+              claimStatus.textContent = "Checking eligibility...";
+              try {
+                const csrf = await apiRequest("/api/auth/csrf");
+                const res = await apiRequest("/api/certificates/issue", {
+                  method: "POST",
+                  headers: { "X-CSRF-Token": csrf.csrfToken },
+                  body: { courseId },
+                });
+                claimStatus.textContent = "✅ Certificate issued! Starting download...";
+                setTimeout(() => {
+                  window.location.href = `/api/certificates/${encodeURIComponent(res.certificate.certificateId)}/download`;
+                }, 800);
+              } catch (err) {
+                claimStatus.textContent = "❌ " + (err.message || "Not eligible yet.");
+                claimBtn.disabled = false;
+              }
+            });
+          }
+        } catch {
+          certArea.innerHTML = "";
+        }
       }
     })();
   </script>
