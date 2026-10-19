@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/login.html" class="btn btn-secondary">Log in</a>
+        <a href="/register.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1 id="course-title">Loading course...</h1>
+        <p id="course-description"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="course-detail-layout">
+          <div class="course-detail-main" id="course-modules">
+            <!-- Filled by JS -->
+          </div>
+
+          <aside class="course-sidebar">
+            <h3>Course details</h3>
+            <ul class="course-sidebar-list">
+              <li><strong>Level</strong><span id="sidebar-level">—</span></li>
+              <li><strong>Duration</strong><span id="sidebar-hours">—</span></li>
+              <li><strong>Modules</strong><span id="sidebar-modules">—</span></li>
+              <li><strong>Lessons</strong><span id="sidebar-lessons">—</span></li>
+            </ul>
+            <a href="/register.html" class="btn btn-primary mt-6" style="width:100%;">Enroll Now</a>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get("slug");
+      const modulesEl = document.getElementById("course-modules");
+      const titleEl = document.getElementById("course-title");
+      const descEl = document.getElementById("course-description");
+
+      if (!slug) {
+        titleEl.textContent = "Course not specified";
+        descEl.textContent = "Return to the courses page and select a course.";
+        return;
+      }
+
+      try {
+        const data = await apiRequest(`/api/courses/${encodeURIComponent(slug)}`);
+        const course = data.course;
+        const modules = data.modules || [];
+
+        document.title = `${course.title} — The Kelvin Ikpeni Dev Bootcamp`;
+        titleEl.textContent = course.title;
+        descEl.textContent = course.description;
+
+        document.getElementById("sidebar-level").textContent = course.level;
+        document.getElementById("sidebar-hours").textContent = `${course.estimatedHours} hours`;
+        document.getElementById("sidebar-modules").textContent = modules.length;
+        const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+        document.getElementById("sidebar-lessons").textContent = totalLessons;
+
+        if (modules.length === 0) {
+          modulesEl.innerHTML = `<div class="state-message">No modules yet — check back soon.</div>`;
+          return;
+        }
+
+        modulesEl.innerHTML = modules
+          .map((mod) => {
+            const lessons = (mod.lessons || [])
+              .map(
+                (l) => `
+                  <li class="lesson-item">
+                    <span class="lesson-title">${escapeHtml(l.title)}</span>
+                    <span class="lesson-meta">${l.estimatedMinutes} min</span>
+                  </li>`
+              )
+              .join("");
+            return `
+              <article class="module">
+                <div class="module-header">
+                  <h3>${escapeHtml(mod.title)}</h3>
+                  <span class="module-order">${mod.order}</span>
+                </div>
+                ${mod.description ? `<p class="module-desc">${escapeHtml(mod.description)}</p>` : ""}
+                <ul class="lesson-list">${lessons}</ul>
+              </article>`;
+          })
+          .join("");
+      } catch (err) {
+        titleEl.textContent = "Course unavailable";
+        descEl.textContent = err.message;
+        modulesEl.innerHTML = `<div class="state-message error">${escapeHtml(err.message)}</div>`;
+      }
+    })();
+  </script>
+</body>
+</html>

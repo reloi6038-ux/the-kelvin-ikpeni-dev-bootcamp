@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+      </ul>
+      <div class="nav-cta">
+        <button class="btn btn-secondary" id="logout-btn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1 id="welcome-heading">Welcome...</h1>
+        <p>Here's where your learning journey continues.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="dashboard-error" class="state-message error" style="display:none;"></div>
+
+        <div id="dashboard-content" style="display:none;">
+          <h2>Your profile</h2>
+          <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8);">
+            <p><strong>Name:</strong> <span id="profile-name">—</span></p>
+            <p><strong>Email:</strong> <span id="profile-email">—</span></p>
+            <p><strong>Role:</strong> <span id="profile-role">—</span></p>
+            <p><strong>Joined:</strong> <span id="profile-joined">—</span></p>
+          </div>
+
+          <h2>Enrolled courses</h2>
+          <div class="state-message" style="margin-bottom: var(--sp-8);">
+            You have not enrolled in any courses yet.
+            <br /><a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (async function () {
+      const errEl = document.getElementById("dashboard-error");
+      const content = document.getElementById("dashboard-content");
+      const welcome = document.getElementById("welcome-heading");
+      const logoutBtn = document.getElementById("logout-btn");
+
+      try {
+        const user = await auth.requireAuthOrRedirect();
+        if (!user) return;
+
+        welcome.textContent = `Welcome, ${user.name.split(" ")[0]}!`;
+        document.getElementById("profile-name").textContent = user.name;
+        document.getElementById("profile-email").textContent = user.email;
+        document.getElementById("profile-role").textContent = user.role;
+        document.getElementById("profile-joined").textContent = user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString()
+          : "—";
+
+        content.style.display = "block";
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = "block";
+      }
+
+      logoutBtn.addEventListener("click", async () => {
+        try { await auth.logout(); } catch {}
+        window.location.href = "/";
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/register.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: var(--sp-10);">
+      <div class="container" style="max-width: 440px;">
+        <div style="text-align:center; margin-bottom: var(--sp-8);">
+          <h1>Welcome back</h1>
+          <p style="color: var(--text-muted);">Log in to continue your learning journey.</p>
+        </div>
+
+        <form class="form" id="login-form" novalidate>
+          <div class="form-group">
+            <label for="login-email">Email address</label>
+            <input type="email" id="login-email" name="email" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="login-submit">
+            Log in
+          </button>
+          <p id="login-error" role="alert" style="color: var(--danger); margin-top: var(--sp-4); min-height: 1.2em;"></p>
+          <p style="text-align:center; margin-top: var(--sp-4); color: var(--text-muted);">
+            New here? <a href="/register.html">Create an account</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (async function () {
+      const form = document.getElementById("login-form");
+      const errEl = document.getElementById("login-error");
+      const submitBtn = document.getElementById("login-submit");
+
+      try { await fetch("/api/auth/csrf"); } catch {}
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errEl.textContent = "";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Logging in...";
+
+        try {
+          await auth.login({
+            email: form.email.value.trim(),
+            password: form.password.value,
+          });
+          window.location.href = "/dashboard.html";
+        } catch (err) {
+          errEl.textContent = err.message || "Login failed.";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Log in";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

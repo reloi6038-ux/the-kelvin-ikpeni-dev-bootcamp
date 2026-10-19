@@ -1,0 +1,23 @@
+# Dependencies (reinstalled via `npm install`)
+node_modules/
+
+# Environment variables (NEVER commit — contains DB passwords, session secrets)
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build / test artifacts
+coverage/
+dist/
+*.tgz

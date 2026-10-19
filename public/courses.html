@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Courses — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/login.html" class="btn btn-secondary">Log in</a>
+        <a href="/register.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>All Learning Paths</h1>
+        <p>Every path builds a real project. Every lesson is hands-on.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="filter-bar" role="tablist" aria-label="Filter courses by level">
+          <button class="filter-btn active" data-filter-level="all" role="tab" aria-selected="true">All Levels</button>
+          <button class="filter-btn" data-filter-level="beginner" role="tab">Beginner</button>
+          <button class="filter-btn" data-filter-level="intermediate" role="tab">Intermediate</button>
+          <button class="filter-btn" data-filter-level="advanced" role="tab">Advanced</button>
+        </div>
+
+        <div class="courses-grid" data-courses-grid>
+          <!-- Filled by courses.js -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp.</span>
+        <span>Built with Node.js, Express &amp; MongoDB</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/courses.js"></script>
+</body>
+</html>

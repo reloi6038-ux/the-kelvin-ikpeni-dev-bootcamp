@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The Kelvin Ikpeni Dev Bootcamp — Learn to code, build real projects, and become a full-stack developer." />
+  <title>The Kelvin Ikpeni Dev Bootcamp — Learn Full-Stack Development</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/login.html" class="btn btn-secondary">Log in</a>
+        <a href="/register.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          <span>Full-stack curriculum · Built for beginners</span>
+        </div>
+        <h1>Learn to Code. Build Real Projects. Become a Developer.</h1>
+        <p class="hero-lead">
+          A complete, hands-on path from computer fundamentals to production-ready
+          full-stack applications — with an in-browser coding IDE, quizzes, and
+          verifiable certificates.
+        </p>
+        <div class="hero-actions">
+          <a href="/courses.html" class="btn btn-primary btn-lg">Start Learning</a>
+          <a href="/courses.html" class="btn btn-secondary btn-lg">Explore Courses</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value">16</div>
+            <div class="hero-stat-label">Learning Paths</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">100%</div>
+            <div class="hero-stat-label">Project-Based</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">0</div>
+            <div class="hero-stat-label">Setup Required</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured courses (live from API) -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Featured Learning Paths</h2>
+          <p>Start with the fundamentals, then build up to full-stack mastery.</p>
+        </div>
+        <div class="courses-grid" data-courses-grid data-limit="3">
+          <!-- Filled by courses.js from /api/courses -->
+        </div>
+        <div class="text-center mt-8">
+          <a href="/courses.html" class="btn btn-secondary btn-lg">View all courses →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" style="background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="container">
+        <div class="section-header">
+          <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Do I need any prior coding experience?</summary>
+            <p>No. The curriculum starts with computer fundamentals and assumes zero prior knowledge. Every concept is introduced from scratch.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What will I build?</summary>
+            <p>By the end of the program you'll have built multiple projects — a portfolio website, an interactive task manager, a blog backend, and a full-stack application deployed to the cloud.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is there a coding environment in the lessons?</summary>
+            <p>Yes. Every coding lesson includes an embedded IDE where you can write HTML, CSS, and JavaScript and see a live preview immediately — no installation required.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do I earn a certificate?</summary>
+            <p>Yes. After completing the curriculum and passing the final examination, you'll receive a downloadable PDF certificate with a unique ID you can share publicly.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="nav-logo">
+            <span class="nav-logo-mark">K</span>
+            <span>The Kelvin Ikpeni Dev Bootcamp</span>
+          </a>
+          <p>A world-class full-stack development learning platform — built for beginners, engineered for professionals.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Learn</h4>
+          <ul>
+            <li><a href="/courses.html">All Courses</a></li>
+            <li><a href="/courses.html">Learning Paths</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Bootcamp</h4>
+          <ul>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Account</h4>
+          <ul>
+            <li><a href="/login.html">Log in</a></li>
+            <li><a href="/register.html">Register</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp. All rights reserved.</span>
+        <span>Built with Node.js, Express &amp; MongoDB</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/courses.js"></script>
+</body>
+</html>
