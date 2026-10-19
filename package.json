@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "seed": "node src/seed/seed.js",
     "seed:full": "node src/seed/run-full-seed.js",
+    "seed:quizzes": "node src/seed/quiz-seed.js",
     "test": "echo \"Tests coming in Phase 13\""
   },
   "keywords": [

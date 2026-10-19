@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Final Examination — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+      </ul>
+      <div class="nav-cta">
+        <span id="exam-timer" style="display:none; font-family: var(--font-mono); font-weight:700; color: var(--warning); font-size: 1.1rem;"></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: var(--sp-8);">
+      <div class="container" style="max-width: 860px;">
+        <div id="exam-error" class="state-message error" style="display:none;"></div>
+
+        <div id="exam-intro" style="display:none;">
+          <h1>Final Examination</h1>
+          <div class="course-card" style="padding: var(--sp-6); margin: var(--sp-5) 0;">
+            <p><strong>Course:</strong> <span id="intro-course">—</span></p>
+            <p><strong>Questions:</strong> <span id="intro-questions">—</span></p>
+            <p><strong>Time limit:</strong> <span id="intro-time">—</span></p>
+            <p><strong>Pass mark:</strong> <span id="intro-pass">—</span></p>
+            <p><strong>Attempts used:</strong> <span id="intro-attempts">—</span></p>
+            <button class="btn btn-primary btn-lg" id="start-btn">Start Examination</button>
+          </div>
+          <div id="intro-history"></div>
+        </div>
+
+        <div id="exam-container" style="display:none;">
+          <h1 id="exam-title">—</h1>
+          <form id="exam-form" style="display:flex; flex-direction:column; gap: var(--sp-5); margin-top: var(--sp-5);">
+            <div id="exam-questions"></div>
+            <button type="submit" class="btn btn-primary btn-lg" id="exam-submit">Submit Examination</button>
+          </form>
+        </div>
+
+        <div id="exam-results" style="display:none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/final-exam.js"></script>
+</body>
+</html>

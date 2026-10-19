@@ -20,6 +20,8 @@ const enrollmentRoutes = require("./routes/enrollments");
 const progressRoutes = require("./routes/progress");
 const lessonRoutes = require("./routes/lessons");
 const exerciseRoutes = require("./routes/exercises");
+const quizRoutes = require("./routes/quizzes");
+const examRoutes = require("./routes/exams");
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -60,6 +62,8 @@ function createApp() {
   app.use("/api/progress", progressRoutes);
   app.use("/api/lessons", lessonRoutes);
   app.use("/api/exercises", exerciseRoutes);
+  app.use("/api/quizzes", quizRoutes);
+  app.use("/api/exams", examRoutes);
 
   // ---- HTML page routes (clean URLs) ----
   const sendPage = (file) => (req, res) =>
@@ -69,6 +73,9 @@ function createApp() {
   app.get("/courses", sendPage("courses.html"));
   app.get("/course-details", sendPage("course-details.html"));
   app.get("/lesson", sendPage("lesson.html"));
+  app.get("/quiz", sendPage("quiz.html"));
+  app.get("/final-exam", sendPage("final-exam.html"));
+  app.get("/exam-results", sendPage("exam-results.html"));
   app.get("/about", sendPage("about.html"));
   app.get("/contact", sendPage("contact.html"));
   app.get("/login", sendPage("login.html"));

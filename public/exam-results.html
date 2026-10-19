@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Results — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: var(--sp-8);">
+      <div class="container" style="max-width: 760px;">
+        <h1>Exam Results</h1>
+        <div id="results-container" class="state-message">
+          Loading...
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const quizId = params.get("quiz");
+      const container = document.getElementById("results-container");
+      if (!quizId) {
+        container.textContent = "Missing quiz ID.";
+        return;
+      }
+      try {
+        const data = await apiRequest(`/api/quizzes/${encodeURIComponent(quizId)}/results`);
+        if (!data.attempts || data.attempts.length === 0) {
+          container.textContent = "No attempts recorded.";
+          return;
+        }
+        container.className = "";
+        container.innerHTML = `
+          <div class="course-card" style="padding: var(--sp-5);">
+            ${data.attempts
+              .map(
+                (a) => `
+                <div style="padding: var(--sp-3) 0; border-bottom: 1px solid var(--border);">
+                  <strong>Attempt #${a.attemptNumber}</strong>
+                  <span style="float:right; color:${a.passed ? "var(--success)" : "var(--danger)"};">
+                    ${a.score}% ${a.passed ? "✓ Passed" : "✗ Failed"}
+                  </span>
+                  <p style="margin: var(--sp-1) 0 0; color: var(--text-muted); font-size:0.9rem;">
+                    ${new Date(a.submittedAt).toLocaleString()}
+                  </p>
+                </div>`
+              )
+              .join("")}
+          </div>`;
+      } catch (err) {
+        container.textContent = err.message;
+      }
+    })();
+  </script>
+</body>
+</html>
