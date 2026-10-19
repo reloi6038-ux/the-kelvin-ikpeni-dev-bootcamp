@@ -18,6 +18,7 @@ const courseRoutes = require("./routes/courses");
 const authRoutes = require("./routes/auth");
 const enrollmentRoutes = require("./routes/enrollments");
 const progressRoutes = require("./routes/progress");
+const lessonRoutes = require("./routes/lessons");
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -35,7 +36,7 @@ function createApp() {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  // ---- Trust one proxy upstream (Render) ----
+  // ---- Trust proxy ----
   app.set("trust proxy", 1);
 
   // ---- Sessions ----
@@ -44,7 +45,7 @@ function createApp() {
   // ---- Global API rate limit ----
   app.use("/api", apiLimiter);
 
-  // ---- CSRF protection on state-changing requests ----
+  // ---- CSRF protection ----
   app.use("/api", verifyCsrf);
 
   // ---- Static assets ----
@@ -56,6 +57,7 @@ function createApp() {
   app.use("/api/auth", authRoutes);
   app.use("/api/enrollments", enrollmentRoutes);
   app.use("/api/progress", progressRoutes);
+  app.use("/api/lessons", lessonRoutes);
 
   // ---- HTML page routes ----
   const sendPage = (file) => (req, res) =>
@@ -64,16 +66,17 @@ function createApp() {
   app.get("/", sendPage("index.html"));
   app.get("/courses", sendPage("courses.html"));
   app.get("/course-details", sendPage("course-details.html"));
+  app.get("/lesson", sendPage("lesson.html"));
   app.get("/about", sendPage("about.html"));
   app.get("/contact", sendPage("contact.html"));
   app.get("/login", sendPage("login.html"));
   app.get("/register", sendPage("register.html"));
-  app.use("/dashboard", sendPage("dashboard.html"));
+  app.get("/dashboard", sendPage("dashboard.html"));
 
-  // ---- API 404 (JSON) ----
+  // ---- API 404 ----
   app.use("/api", notFound);
 
-  // ---- Page 404 (branded HTML) ----
+  // ---- Page 404 ----
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "..", "public", "404.html"));
   });

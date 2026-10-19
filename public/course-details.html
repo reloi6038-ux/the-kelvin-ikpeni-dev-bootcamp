@@ -22,7 +22,7 @@
         <li><a href="/about.html">About</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul>
-      <div class="nav-cta">
+      <div class="nav-cta" id="nav-auth-cta">
         <a href="/login.html" class="btn btn-secondary">Log in</a>
         <a href="/register.html" class="btn btn-primary">Get started</a>
       </div>
@@ -51,8 +51,12 @@
               <li><strong>Duration</strong><span id="sidebar-hours">—</span></li>
               <li><strong>Modules</strong><span id="sidebar-modules">—</span></li>
               <li><strong>Lessons</strong><span id="sidebar-lessons">—</span></li>
+              <li><strong>Your progress</strong><span id="sidebar-progress">—</span></li>
             </ul>
-            <a href="/register.html" class="btn btn-primary mt-6" style="width:100%;">Enroll Now</a>
+            <button id="enroll-btn" class="btn btn-primary mt-6" style="width:100%;" disabled>
+              Checking enrollment...
+            </button>
+            <p id="enroll-status" style="margin-top: var(--sp-3); color: var(--text-muted); font-size: 0.9rem; text-align:center;"></p>
           </aside>
         </div>
       </div>
@@ -69,6 +73,8 @@
 
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/enroll.js"></script>
   <script>
     (async function () {
       const params = new URLSearchParams(window.location.search);
@@ -76,6 +82,10 @@
       const modulesEl = document.getElementById("course-modules");
       const titleEl = document.getElementById("course-title");
       const descEl = document.getElementById("course-description");
+      const enrollBtn = document.getElementById("enroll-btn");
+      const enrollStatus = document.getElementById("enroll-status");
+      const progressEl = document.getElementById("sidebar-progress");
+      const navAuth = document.getElementById("nav-auth-cta");
 
       if (!slug) {
         titleEl.textContent = "Course not specified";
@@ -83,10 +93,13 @@
         return;
       }
 
+      let courseId = null;
+
       try {
         const data = await apiRequest(`/api/courses/${encodeURIComponent(slug)}`);
         const course = data.course;
         const modules = data.modules || [];
+        courseId = course._id;
 
         document.title = `${course.title} — The Kelvin Ikpeni Dev Bootcamp`;
         titleEl.textContent = course.title;
@@ -100,35 +113,93 @@
 
         if (modules.length === 0) {
           modulesEl.innerHTML = `<div class="state-message">No modules yet — check back soon.</div>`;
-          return;
+        } else {
+          modulesEl.innerHTML = modules
+            .map((mod) => {
+              const lessons = (mod.lessons || [])
+                .map(
+                  (l) => `
+                    <li class="lesson-item">
+                      <a href="/lesson.html?course=${encodeURIComponent(slug)}&lesson=${encodeURIComponent(l.slug)}"
+                         style="display:flex; justify-content:space-between; align-items:center; width:100%; text-decoration:none; color:inherit; gap: var(--sp-3);">
+                        <span class="lesson-title">${escapeHtml(l.title)}</span>
+                        <span class="lesson-meta">${l.estimatedMinutes} min →</span>
+                      </a>
+                    </li>`
+                )
+                .join("");
+              return `
+                <article class="module">
+                  <div class="module-header">
+                    <h3>${escapeHtml(mod.title)}</h3>
+                    <span class="module-order">${mod.order}</span>
+                  </div>
+                  ${mod.description ? `<p class="module-desc">${escapeHtml(mod.description)}</p>` : ""}
+                  <ul class="lesson-list">${lessons}</ul>
+                </article>`;
+            })
+            .join("");
         }
-
-        modulesEl.innerHTML = modules
-          .map((mod) => {
-            const lessons = (mod.lessons || [])
-              .map(
-                (l) => `
-                  <li class="lesson-item">
-                    <span class="lesson-title">${escapeHtml(l.title)}</span>
-                    <span class="lesson-meta">${l.estimatedMinutes} min</span>
-                  </li>`
-              )
-              .join("");
-            return `
-              <article class="module">
-                <div class="module-header">
-                  <h3>${escapeHtml(mod.title)}</h3>
-                  <span class="module-order">${mod.order}</span>
-                </div>
-                ${mod.description ? `<p class="module-desc">${escapeHtml(mod.description)}</p>` : ""}
-                <ul class="lesson-list">${lessons}</ul>
-              </article>`;
-          })
-          .join("");
       } catch (err) {
         titleEl.textContent = "Course unavailable";
         descEl.textContent = err.message;
         modulesEl.innerHTML = `<div class="state-message error">${escapeHtml(err.message)}</div>`;
+        return;
+      }
+
+      // Auth + enrollment check
+      const user = await auth.me();
+      if (!user) {
+        enrollBtn.textContent = "Log in to enroll";
+        enrollBtn.disabled = false;
+        enrollBtn.addEventListener("click", () => {
+          window.location.href = `/login.html?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        });
+        return;
+      }
+
+      navAuth.innerHTML = `
+        <a href="/dashboard.html" class="btn btn-secondary">Dashboard</a>
+      `;
+
+      try {
+        const list = await enrollment.list();
+        const existing = list.enrollments.find((e) => e.course.slug === slug);
+
+        if (existing) {
+          enrollBtn.textContent = "Continue learning";
+          enrollBtn.disabled = false;
+          enrollBtn.addEventListener("click", () => {
+            window.location.href = "/dashboard.html";
+          });
+          progressEl.textContent = `${existing.progress.percent}%`;
+          enrollStatus.textContent = `You're enrolled — ${existing.progress.completed}/${existing.progress.total} lessons complete.`;
+
+          try {
+            const prog = await enrollment.getCourseProgress(slug);
+            progressEl.textContent = `${prog.percent}%`;
+            enrollStatus.textContent = `You're enrolled — ${prog.completedLessons}/${prog.totalLessons} lessons complete.`;
+          } catch {}
+        } else {
+          enrollBtn.textContent = "Enroll Now";
+          enrollBtn.disabled = false;
+          enrollBtn.addEventListener("click", async () => {
+            enrollBtn.disabled = true;
+            enrollBtn.textContent = "Enrolling...";
+            try {
+              await enrollment.enrollById(courseId);
+              window.location.href = "/dashboard.html";
+            } catch (err) {
+              enrollStatus.textContent = err.message || "Enrollment failed.";
+              enrollBtn.disabled = false;
+              enrollBtn.textContent = "Enroll Now";
+            }
+          });
+        }
+      } catch (err) {
+        enrollBtn.textContent = "Enroll Now";
+        enrollBtn.disabled = false;
+        enrollStatus.textContent = "Could not check enrollment status.";
       }
     })();
   </script>

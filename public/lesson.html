@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/">Home</a></li>
+        <li><a href="/courses.html">Courses</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
+      </ul>
+      <div class="nav-cta" id="nav-auth-cta">
+        <a href="/login.html" class="btn btn-secondary">Log in</a>
+        <a href="/register.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: var(--sp-6);">
+      <div class="container">
+        <div id="lesson-error" class="state-message error" style="display:none;"></div>
+
+        <div class="lesson-layout" id="lesson-layout" style="display:none;">
+          <aside class="lesson-sidebar" id="lesson-sidebar">
+            <h3>Course contents</h3>
+            <div id="lesson-tree"></div>
+          </aside>
+
+          <article class="lesson-main">
+            <nav class="breadcrumb" id="breadcrumb"></nav>
+
+            <header class="lesson-header">
+              <h1 id="lesson-title">Loading...</h1>
+              <div class="lesson-header-meta">
+                <span id="lesson-duration">—</span>
+                <span id="lesson-position">—</span>
+              </div>
+            </header>
+
+            <div class="lesson-body" id="lesson-content"></div>
+
+            <div class="mark-complete-bar" id="mark-complete-bar">
+              <button class="btn btn-primary" id="mark-complete-btn">Mark as complete</button>
+            </div>
+
+            <nav class="lesson-nav" id="lesson-nav"></nav>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/enroll.js"></script>
+  <script src="/js/lesson.js"></script>
+</body>
+</html>
