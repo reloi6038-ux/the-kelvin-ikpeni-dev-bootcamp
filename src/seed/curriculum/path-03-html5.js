@@ -4,9 +4,9 @@ module.exports = {
     title: "HTML5 Mastery",
     slug: "html5",
     description:
-      "Learn semantic markup, forms, accessibility, and SEO — the structure of every web page.",
+      "Master the structure of the web — semantic markup, forms, accessibility, and SEO — with hands-on coding exercises in every lesson.",
     level: "beginner",
-    estimatedHours: 14,
+    estimatedHours: 16,
     icon: "html5",
     order: 3,
     isPublished: true,
@@ -21,13 +21,18 @@ module.exports = {
           title: "Your First HTML Page",
           slug: "first-html-page",
           order: 1,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Your First HTML Page
 
-HTML (HyperText Markup Language) is the skeleton of the web. It describes the structure of a webpage using tags.
+**Learning objectives:**
+- Write a complete HTML5 document from memory
+- Explain every tag in the boilerplate
+- Render a heading in the browser
 
-## The Basic Structure
-Every HTML document has the same boilerplate:
+## What is HTML?
+**HTML (HyperText Markup Language)** describes the *structure* of a web page using **tags**. Tags look like \`<tagname>\` (open) and \`</tagname>\` (close). Content lives between them.
+
+## The Boilerplate
 \`\`\`html
 <!DOCTYPE html>
 <html lang="en">
@@ -42,54 +47,95 @@ Every HTML document has the same boilerplate:
 </html>
 \`\`\`
 
-### Breaking It Down
-- \`<!DOCTYPE html>\`: Tells the browser "I am an HTML5 document."
-- \`<html>\`: The root element. \`lang="en"\` helps screen readers.
-- \`<head>\`: Contains metadata. The user doesn't see this content.
-  - \`<title>\`: The text on the browser tab.
-- \`<body>\`: Contains all visible content.`,
+### Every Tag Explained
+- \`<!DOCTYPE html>\` — declares this as HTML5
+- \`<html lang="en">\` — the root. \`lang\` helps screen readers pronounce content
+- \`<head>\` — metadata, not visible
+  - \`<meta charset="UTF-8">\` — character encoding (handles emoji, accents)
+  - \`<meta name="viewport" ...>\` — makes mobile work correctly
+  - \`<title>\` — the browser tab text
+- \`<body>\` — everything the user sees
+
+## Headings
+\`\`\`html
+<h1>Main title</h1>
+<h2>Subtitle</h2>
+<h3>Sub-subtitle</h3>
+\`\`\`
+Use only **one \`<h1>\`** per page (for SEO). Use h2–h6 for hierarchy.
+
+## Key Takeaways
+- Every HTML page has the same skeleton
+- \`<head>\` = invisible metadata, \`<body>\` = visible content
+- Only one \`<h1>\` per page`,
           exercise: {
             enabled: true,
             instructions: "Add an `<h1>` element with the text `Hello, HTML!` inside the body.",
-            walkthrough: "1. Find the `<body>` tag.\n2. Inside it, type `<h1>Hello, HTML!</h1>`.\n3. Click 'Run' to see it appear in the preview.",
+            walkthrough: "1. Find the `<body>` tag.\n2. Inside it, type `<h1>Hello, HTML!</h1>`.\n3. Click 'Run' to see it in the preview.",
             expectedOutput: "Hello, HTML!",
             starterHtml: "<!DOCTYPE html>\n<html>\n<head><title>Test</title></head>\n<body>\n  <!-- Add your h1 here -->\n  \n</body>\n</html>",
             solutionHtml: "<!DOCTYPE html>\n<html>\n<head><title>Test</title></head>\n<body>\n  <h1>Hello, HTML!</h1>\n</body>\n</html>",
             starterCss: "",
             solutionCss: "",
             starterJs: "",
-            solutionJs: ""
+            solutionJs: "",
           },
         },
         {
           title: "Semantic HTML",
           slug: "semantic-html",
           order: 2,
-          estimatedMinutes: 25,
+          estimatedMinutes: 30,
           content: `# Semantic HTML
 
-Semantic HTML means using tags that describe the *meaning* of the content, not just how it looks.
+**Learning objectives:**
+- Distinguish semantic from non-semantic tags
+- Explain why Google and screen readers care
+- Refactor divs into semantic tags
+
+## What is Semantic HTML?
+**Semantic** = describing meaning, not appearance. A \`<nav>\` *means* "navigation." A \`<div>\` means nothing.
 
 ## The Old Way
 \`\`\`html
 <div id="header">...</div>
 <div id="nav">...</div>
-<div id="article">...</div>
+<div id="main">...</div>
+<div id="footer">...</div>
 \`\`\`
+Every element is meaningless. The browser sees a pile of boxes.
 
 ## The Modern Way
 \`\`\`html
 <header>...</header>
 <nav>...</nav>
 <main>...</main>
-<article>...</article>
 <footer>...</footer>
 \`\`\`
+Each tag communicates *what the content is*.
 
-### Why is this better?
-1. **Accessibility**: Screen readers can jump to \`<main>\` or navigate \`<nav>\`.
-2. **SEO**: Google understands your page structure better.
-3. **Maintainability**: Other developers instantly know what each section does.`,
+## The Full Semantic Vocabulary
+| Tag | Meaning |
+|-----|---------|
+| \`<header>\` | Top intro section |
+| \`<nav>\` | Navigation links |
+| \`<main>\` | Primary content (one per page) |
+| \`<section>\` | Thematic grouping |
+| \`<article>\` | Standalone content (blog post, forum post) |
+| \`<aside>\` | Related sidebar |
+| \`<footer>\` | Bottom of page |
+| \`<figure>\` / \`<figcaption>\` | Image + caption |
+| \`<time>\` | Dates and times |
+
+## Why It Matters
+1. **SEO** — Google understands your page structure and ranks it higher
+2. **Accessibility** — screen readers can jump to \`<main>\` or skip \`<nav>\`
+3. **Maintainability** — future-you knows what each section does
+
+## Key Takeaways
+- Semantic tags describe *meaning*, not appearance
+- Every page needs \`<header>\`, \`<nav>\`, \`<main>\`, \`<footer>\`
+- Semantic = better SEO + accessibility + maintainability`,
           exercise: {
             enabled: true,
             instructions: "Convert the generic `<div>` tags into semantic `<header>` and `<main>` tags.",
@@ -100,32 +146,60 @@ Semantic HTML means using tags that describe the *meaning* of the content, not j
             starterCss: "div, header, main { border: 1px solid blue; padding: 10px; margin-bottom: 10px; }",
             solutionCss: "div, header, main { border: 1px solid blue; padding: 10px; margin-bottom: 10px; }",
             starterJs: "",
-            solutionJs: ""
+            solutionJs: "",
           },
         },
         {
           title: "Links and Images",
           slug: "links-and-images",
           order: 3,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Links and Images
 
+**Learning objectives:**
+- Create internal and external links
+- Add images with proper alt text
+- Explain the security implications of \`target="_blank"\`
+
 ## Links
+The \`<a>\` (anchor) tag creates hyperlinks.
 \`\`\`html
-<a href="https://example.com">External link</a>
-<a href="/about.html">Internal link</a>
+<a href="https://example.com">External</a>
+<a href="/about.html">Internal</a>
+<a href="#section-2">Jump to section</a>
+<a href="mailto:hi@example.com">Email</a>
+<a href="tel:+15551234567">Call</a>
 \`\`\`
 
-- **href**: The destination URL.
-- **target="_blank"**: Opens in a new tab.
+### Opening in a New Tab
+\`\`\`html
+<a href="https://example.com" target="_blank" rel="noopener noreferrer">Visit</a>
+\`\`\`
+- \`target="_blank"\` — opens in new tab
+- \`rel="noopener"\` — prevents the new tab from accessing your page (security)
+- \`rel="noreferrer"\` — hides where the link came from
+
+**Never use \`target="_blank"\` without \`rel="noopener"\`** — it's a real security vulnerability (tabnabbing).
 
 ## Images
 \`\`\`html
-<img src="https://via.placeholder.com/150" alt="Placeholder" width="150">
+<img src="/images/photo.jpg" alt="Sunset over the ocean" width="400" height="300">
 \`\`\`
 
-- **src**: The image file path.
-- **alt**: Text description for screen readers (required).`,
+### Attributes
+- \`src\` — file path or URL
+- \`alt\` — description for screen readers (required for accessibility)
+- \`width\` / \`height\` — prevent layout shift while loading
+
+### Why alt Text Matters
+- Screen readers read it aloud to blind users
+- It displays if the image fails to load
+- Google uses it for image search indexing
+
+## Key Takeaways
+- \`<a>\` for links, always with \`rel="noopener"\` when opening new tabs
+- \`<img>\` always needs \`alt\`
+- Relative paths (\`/images/x.jpg\`) are more portable than absolute URLs`,
           exercise: {
             enabled: true,
             instructions: "Create a link that goes to `https://github.com` and displays the text `Visit GitHub`.",
@@ -136,39 +210,79 @@ Semantic HTML means using tags that describe the *meaning* of the content, not j
             starterCss: "a { color: blue; font-size: 18px; }",
             solutionCss: "a { color: blue; font-size: 18px; }",
             starterJs: "",
-            solutionJs: ""
+            solutionJs: "",
           },
         },
       ],
     },
     {
-      title: "Forms and Inputs",
-      description: "Collecting data from users safely.",
+      title: "Forms and Accessibility",
+      description: "Collect user input and make it usable by everyone.",
       order: 2,
       lessons: [
         {
           title: "Building Forms",
           slug: "building-forms",
           order: 1,
-          estimatedMinutes: 25,
+          estimatedMinutes: 30,
           content: `# Building Forms
 
-Forms collect user input.
+**Learning objectives:**
+- Build a complete form with labels, inputs, and a submit button
+- Choose the correct input type
+- Understand why \`<label for>\` matters
 
 ## The Form Element
 \`\`\`html
-<form>
-  <label for="email">Email Address</label>
+<form action="/submit" method="POST">
+  <label for="email">Email</label>
   <input type="email" id="email" name="email" required>
-
-  <button type="submit">Sign Up</button>
+  <button type="submit">Sign up</button>
 </form>
 \`\`\`
 
-### Key Attributes
-- \`<label>\`: Tells the user what to enter. \`for\` must match the input's \`id\`.
-- \`name\`: The key sent to the server.
-- \`required\`: Built-in browser validation.`,
+### Every Part Explained
+- \`<form>\` — the container
+- \`action\` — the URL to send data to
+- \`method\` — \`GET\` for search, \`POST\` for state changes (login, payment)
+- \`<label for="X">\` — must match the input's \`id\`
+- \`name\` — the *key* your server will see in \`req.body\`
+- \`required\` — browser blocks submission if empty
+
+## Input Types
+| Type | Use |
+|------|-----|
+| text | Standard text |
+| email | Validates email format |
+| password | Hides characters |
+| number | Numeric only, shows spinner |
+| tel | Phone keyboard on mobile |
+| url | Validates URL |
+| date | Date picker |
+| checkbox | Multi-select |
+| radio | Single-select from group |
+| file | File upload |
+
+## Textarea and Select
+\`\`\`html
+<textarea name="message" rows="4" cols="40"></textarea>
+
+<select name="role">
+  <option value="student">Student</option>
+  <option value="admin">Admin</option>
+</select>
+\`\`\`
+
+## Accessibility Checklist
+- ✅ Every input has a \`<label>\`
+- ✅ Labels use \`for=\` to link to \`id=\`
+- ✅ Group related inputs with \`<fieldset><legend>\`
+- ✅ Use semantic input types (\`email\`, not \`text\`)
+
+## Key Takeaways
+- Forms need: \`action\`, \`method\`, labels, and \`name\` attributes
+- \`<label for>\` + \`id\` = accessible forms
+- Choose the right input type — improves UX and validation`,
           exercise: {
             enabled: true,
             instructions: "Create an `<input>` of type `text` with the id `username` and the name `username`. Add a `<label>` for it.",
@@ -179,23 +293,53 @@ Forms collect user input.
             starterCss: "label { display: block; margin-bottom: 5px; }\ninput { padding: 5px; }",
             solutionCss: "label { display: block; margin-bottom: 5px; }\ninput { padding: 5px; }",
             starterJs: "",
-            solutionJs: ""
+            solutionJs: "",
           },
         },
         {
           title: "Form Validation",
           slug: "form-validation",
           order: 2,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Form Validation
 
-Never trust user input. HTML5 provides built-in attributes to validate before submission.
+**Learning objectives:**
+- Use HTML5 validation attributes
+- Understand client vs server validation
+- Know why you can never trust the client
 
-## Validation Attributes
-- \`required\`: Cannot be empty.
-- \`minlength="3"\`: Minimum characters.
-- \`maxlength="20"\`: Maximum characters.
-- \`pattern="[0-9]{5}"\`: A regular expression.`,
+## The Two Layers of Validation
+
+### Layer 1: Client-Side (HTML5)
+Built into the browser. Fast feedback, better UX.
+\`\`\`html
+<input type="email" required minlength="5" maxlength="100">
+<input type="text" pattern="[0-9]{5}">  <!-- US zip -->
+\`\`\`
+
+Attributes:
+- \`required\` — must not be empty
+- \`minlength\` / \`maxlength\` — length constraints
+- \`pattern\` — regex the input must match
+- \`type="email"\` / \`type="url"\` — format validation
+
+### Layer 2: Server-Side (Always Required)
+Client-side validation is **skipped** if:
+- The user opens DevTools and modifies the HTML
+- The user submits a crafted request via \`curl\` or Postman
+- JavaScript is disabled
+
+**The server must always re-validate.** In our platform, \`src/validators/auth.js\` checks email format, password strength, and length — even though the form already does.
+
+## The Golden Rule
+> **Never trust the client.** Ever.
+
+If a form field says "max 10 characters," a malicious user can send 10,000. Your server must reject it.
+
+## Key Takeaways
+- HTML5 validation = UX layer
+- Server validation = security layer
+- Both are required. Neither replaces the other.`,
           exercise: {
             enabled: true,
             instructions: "Make the existing input required and ensure it cannot be more than 10 characters.",
@@ -206,7 +350,7 @@ Never trust user input. HTML5 provides built-in attributes to validate before su
             starterCss: "input { border: 2px solid red; }",
             solutionCss: "input { border: 2px solid green; }",
             starterJs: "",
-            solutionJs: ""
+            solutionJs: "",
           },
         },
       ],

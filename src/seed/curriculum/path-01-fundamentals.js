@@ -4,9 +4,9 @@ module.exports = {
     title: "Computer & Internet Fundamentals",
     slug: "computer-fundamentals",
     description:
-      "Understand how computers, browsers, servers, HTTP, DNS, and databases work together before writing your first line of code.",
+      "Build a solid mental model of how computers, browsers, servers, HTTP, DNS, and databases work together — the foundation of every line of code you'll ever write.",
     level: "beginner",
-    estimatedHours: 6,
+    estimatedHours: 8,
     icon: "fundamentals",
     order: 1,
     isPublished: true,
@@ -14,116 +14,174 @@ module.exports = {
   modules: [
     {
       title: "How the Web Works",
-      description: "Clients, servers, HTTP, and the request-response cycle.",
+      description: "The client-server model, HTTP, DNS, and the request-response cycle.",
       order: 1,
       lessons: [
         {
-          title: "What Is a Client and a Server?",
+          title: "Clients and Servers",
           slug: "clients-and-servers",
           order: 1,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Clients and Servers
 
-Every interaction on the web is a conversation between two programs: a **client** and a **server**.
+**Learning objectives:**
+- Define what a client is and what a server is
+- Explain the request-response cycle
+- Trace what happens when you type a URL into your browser
+
+## The Restaurant Analogy
+Imagine a restaurant. You sit at a table and read the menu. You tell the waiter what you want. The waiter takes your order to the kitchen. The kitchen prepares the food, and the waiter brings it back to you.
+
+- **You** = the client
+- **Waiter** = the internet (data transport)
+- **Kitchen** = the server
+
+Every website interaction follows this pattern.
 
 ## The Client
-A client is any device or program that requests information. Your web browser (Chrome, Firefox, Safari) is the most common client. When you type a URL and press Enter, your browser acts as the client. It sends a request asking for a specific webpage.
+A **client** is any program that requests information. Your browser (Chrome, Firefox, Safari) is the most common client. When you load a page, your browser sends a request to a remote computer asking for files, data, or computation.
 
 ## The Server
-A server is a computer that stores files, data, and application logic. Its job is to listen for requests from clients, process them, and send back a response. Servers run 24/7 and are usually located in data centers.
+A **server** is a computer program that waits for requests and responds to them. Servers run 24/7 in data centers. They store HTML files, images, databases, and application logic.
 
 ## The Request-Response Cycle
-1. You type \`https://example.com\` into your browser.
-2. Your browser (the client) uses DNS to find the server's IP address.
-3. It sends an HTTP request to that server.
-4. The server processes the request (e.g., reads a file or queries a database).
-5. The server sends back an HTTP response.
-6. Your browser receives the response and renders the HTML into a visible webpage.
+1. You type \`https://example.com\` into your browser
+2. Your browser asks DNS: *"What is the IP address for example.com?"*
+3. DNS replies with something like \`93.184.216.34\`
+4. Your browser sends an **HTTP request** to that IP
+5. The server processes the request
+6. The server sends back an **HTTP response** (usually HTML)
+7. Your browser parses the HTML, loads images/CSS/JS, and renders the page
 
-## Real-World Analogy
-Think of a restaurant. You (the client) sit at a table and look at a menu. You tell the waiter what you want. The waiter takes your order to the kitchen (the server). The kitchen prepares the food and gives it to the waiter, who brings it back to you. In this analogy, the waiter is the internet (transporting data), and the kitchen is the web server.`,
+## Why This Matters
+Every backend feature you'll build — authentication, enrollment, quizzes — is fundamentally a **client asking a server to do something** and **the server responding**. When you later build an API endpoint like \`POST /api/enrollments\`, you are writing the server-side of this exact cycle.
+
+## Key Takeaways
+- Every web interaction has two sides: client and server
+- HTTP is the language they speak
+- Your code will be both — the client (frontend) and the server (backend)`,
         },
         {
-          title: "HTTP, HTTPS & DNS",
+          title: "HTTP, HTTPS, and DNS",
           slug: "http-https-dns",
           order: 2,
-          estimatedMinutes: 25,
-          content: `# HTTP, HTTPS & DNS
+          estimatedMinutes: 30,
+          content: `# HTTP, HTTPS, and DNS
 
-## HTTP (HyperText Transfer Protocol)
-HTTP is the protocol (set of rules) that defines how clients and servers communicate. It relies on a **request-response model**.
+**Learning objectives:**
+- Understand HTTP methods and status codes
+- Explain why HTTPS is required in production
+- Describe what DNS does
 
-### HTTP Methods
-- **GET**: Retrieve data (e.g., loading a webpage or fetching a list of courses).
-- **POST**: Send data to the server (e.g., submitting a form or enrolling in a course).
-- **PUT / PATCH**: Update existing data.
-- **DELETE**: Remove data.
+## HTTP: The Protocol of the Web
+HTTP (HyperText Transfer Protocol) defines how clients and servers exchange data. Every request has a **method** and a **path**, and every response has a **status code** and a **body**.
 
-### HTTP Status Codes
-Status codes are 3-digit numbers the server sends back to tell the client what happened.
-- **200 OK**: The request succeeded.
-- **201 Created**: A new resource was created (e.g., a new account).
-- **400 Bad Request**: The client sent invalid data.
-- **401 Unauthorized**: The client needs to log in.
-- **404 Not Found**: The requested resource doesn't exist.
-- **500 Server Error**: The server crashed.
+### Methods
+| Method | Purpose | Example |
+|--------|---------|---------|
+| GET | Fetch data | \`GET /api/courses\` |
+| POST | Create data | \`POST /api/auth/register\` |
+| PUT / PATCH | Update data | \`PATCH /api/courses/:id\` |
+| DELETE | Remove data | \`DELETE /api/enrollments/:id\` |
 
-## HTTPS (HTTP Secure)
-HTTPS is HTTP with **encryption (TLS/SSL)**. When you use HTTPS, the data sent between your browser and the server is scrambled. This prevents hackers from reading sensitive information like passwords, credit card numbers, or personal messages. **Always use HTTPS in production.**
+### Status Codes
+| Range | Meaning |
+|-------|---------|
+| 2xx | Success (200 OK, 201 Created) |
+| 3xx | Redirect (301 Moved, 304 Not Modified) |
+| 4xx | Client error (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found) |
+| 5xx | Server error (500 Internal Server Error) |
 
-## DNS (Domain Name System)
-Computers communicate using IP addresses (e.g., \`93.184.216.34\`). Humans are bad at remembering numbers. DNS translates human-readable domain names (\`example.com\`) into IP addresses. It's the internet's phone book.`,
+**Pro tip:** When you build APIs, the status code is as important as the response body. Clients (and monitoring tools) rely on it.
+
+## HTTPS: HTTP + Encryption
+HTTP sends data in **plain text**. Anyone on the same Wi-Fi (a coffee shop, hotel, airport) could read your passwords.
+
+HTTPS wraps HTTP inside **TLS encryption**. Data is scrambled in transit so attackers can't read it. Every modern site must use HTTPS. Render enables HTTPS automatically.
+
+## DNS: The Internet's Phone Book
+Computers speak in IP addresses like \`93.184.216.34\`. Humans prefer names like \`example.com\`. **DNS** translates one to the other.
+
+1. Your browser asks DNS: *"What's the IP for example.com?"*
+2. DNS responds: *"93.184.216.34"*
+3. Your browser connects to that IP.
+
+## Key Takeaways
+- HTTP has methods (verbs) and status codes (results)
+- HTTPS encrypts HTTP
+- DNS translates domain names into IP addresses
+- Every professional app: HTTPS, correct status codes, clear URLs`,
         },
-      ],
-    },
-    {
-      title: "Files, Terminals & Editors",
-      description: "The fundamental tools every developer uses daily.",
-      order: 2,
-      lessons: [
         {
-          title: "Understanding the Terminal",
-          slug: "understanding-terminal",
-          order: 1,
+          title: "Putting It All Together",
+          slug: "putting-it-together",
+          order: 3,
           estimatedMinutes: 20,
-          content: `# Understanding the Terminal
+          content: `# Putting It All Together
 
-The terminal (or command line) is a text-based interface to your computer. Instead of clicking icons, you type commands. Professionals use it because it's faster, scriptable, and often the only way to do certain tasks.
+**Learning objectives:**
+- Trace a full request from browser to database and back
+- Identify where each layer of the stack fits
 
-## Essential Commands
-### Navigation
-- \`pwd\` (Print Working Directory): Shows exactly which folder you are currently inside.
-- \`ls\` (List): Shows all files and folders in your current location.
-- \`cd folderName\` (Change Directory): Moves you into a folder.
-- \`cd ..\`: Moves you up one folder.
+## A Full Round Trip
+Let's trace what happens when a user clicks **"Enroll Now"** on a course.
 
-### File Management
-- \`mkdir folderName\`: Creates a new folder (Make Directory).
-- \`touch fileName.txt\`: Creates an empty file.
-- \`rm fileName.txt\`: Deletes a file.
+### Step 1: The Browser
+\`\`\`javascript
+fetch("/api/enrollments", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
+  body: JSON.stringify({ slug: "html5" })
+});
+\`\`\`
+Your browser:
+1. Reads the URL: \`https://yourapp.com/api/enrollments\`
+2. DNS resolves \`yourapp.com\` → an IP address
+3. Opens an HTTPS connection (TLS handshake)
+4. Sends the POST request with a JSON body
 
-## Why It Matters
-Every time you run \`npm run dev\`, you are using the terminal to start a Node.js server. Every time you push code to GitHub, you use \`git push\`. The terminal is the control center for modern development.`,
-        },
-        {
-          title: "Your First Code Editor (VS Code)",
-          slug: "first-code-editor",
-          order: 2,
-          estimatedMinutes: 15,
-          content: `# Your First Code Editor (VS Code)
+### Step 2: The Server (Express)
+The request arrives at Render, which forwards it to your Node.js process. Express middleware runs in order:
+1. **Helmet** — sets security headers
+2. **Morgan** — logs the request
+3. **express.json()** — parses the JSON body into \`req.body\`
+4. **express-session** — reads the session cookie, finds the user
+5. **Rate limiter** — checks request counts
+6. **CSRF** — verifies the token
+7. **Route handler** — calls the enrollment controller
 
-While you *can* write code in Notepad, professional developers use an IDE (Integrated Development Environment) or a code editor. Visual Studio Code (VS Code) is the industry standard.
+### Step 3: The Controller
+\`\`\`javascript
+router.post("/", requireAuth, async (req, res) => {
+  const course = await Course.findOne({ slug: req.body.slug });
+  const enrollment = await Enrollment.create({
+    studentId: req.user._id,
+    courseId: course._id,
+  });
+  res.status(201).json({ success: true, enrollment });
+});
+\`\`\`
 
-## Why VS Code?
-- **Syntax Highlighting**: It colors your code to make it easier to read (e.g., HTML tags are blue, strings are orange).
-- **IntelliSense**: It auto-completes code and shows errors before you run it.
-- **Extensions**: It has a massive ecosystem of plugins (Prettier for formatting, ESLint for catching bugs).
-- **Integrated Terminal**: You can run your code without leaving the editor.
+### Step 4: MongoDB
+Mongoose translates this into a MongoDB insert. MongoDB stores the document, generates an \`_id\`, and returns.
 
-## Essential Extensions
-1. **Prettier**: Automatically formats your code when you save.
-2. **ESLint**: Warns you about unused variables or syntax errors.
-3. **Live Server**: Preview HTML files instantly as you type.`,
+### Step 5: The Response Travels Back
+Express sends \`{ success: true, enrollment: { ... } }\` with status **201**. Your browser receives it and redirects to \`/dashboard.html\`.
+
+## The Layers of a Full-Stack App
+| Layer | Responsibility | Our Technology |
+|-------|---------------|----------------|
+| Client | Render UI, send requests | HTML, CSS, JS |
+| Transport | Move data safely | HTTPS |
+| Routing | Map URLs to handlers | Express |
+| Auth | Who is this user? | express-session |
+| Logic | Business rules | Controllers |
+| Data | Persist information | MongoDB + Mongoose |
+
+## Key Takeaways
+- A single user click passes through 5+ layers
+- Every layer has one clear job
+- When something breaks, trace the request layer by layer`,
         },
       ],
     },
