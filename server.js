@@ -12,11 +12,10 @@ const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 async function start() {
-  if (process.env.SKIP_DB === "true") {
-    console.warn("⚠️  SKIP_DB=true — starting without MongoDB.");
-  } else {
-    await connectDB();
-  }
+  // MongoDB is required in all environments.
+  // If the connection fails, connectDB() calls process.exit(1)
+  // so Render restarts the service and logs the real error.
+  await connectDB();
 
   const app = createApp();
 

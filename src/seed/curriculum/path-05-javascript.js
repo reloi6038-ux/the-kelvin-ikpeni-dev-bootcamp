@@ -33,25 +33,19 @@ Variables are containers for storing data.
 \`\`\`javascript
 const name = "Alice";
 let score = 100;
-score = 150; // ✅ allowed
-// name = "Bob"; // ❌ ERROR
-\`\`\`
-
-## Data Types
-- **String**: \`"hello"\`, \`'world'\`
-- **Number**: \`42\`, \`3.14\`
-- **Boolean**: \`true\`, \`false\`
-- **Null**: Intentional absence
-- **Undefined**: Not yet assigned
-- **Object**: \`{ name: "Alice" }\`
-- **Array**: \`[1, 2, 3]\`
-
-## Checking Types
-\`\`\`javascript
-typeof "hello"; // "string"
-typeof 42;      // "number"
-typeof [];      // "object"
 \`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Create a constant named `myName` and assign it the string `'Kelvin'`.",
+            walkthrough: "1. Type `const`.\n2. Name the variable `myName`.\n3. Assign it the value `\"Kelvin\"`.",
+            expectedOutput: "const myName",
+            starterHtml: "<h1 id='output'>Waiting...</h1>",
+            solutionHtml: "<h1 id='output'>Waiting...</h1>",
+            starterCss: "h1 { color: blue; }",
+            solutionCss: "h1 { color: blue; }",
+            starterJs: "// Declare your constant below\n\n// Don't change this line\ndocument.getElementById('output').textContent = typeof myName !== 'undefined' ? myName : 'Waiting...';\n",
+            solutionJs: "const myName = 'Kelvin';\n\ndocument.getElementById('output').textContent = typeof myName !== 'undefined' ? myName : 'Waiting...';\n"
+          },
         },
         {
           title: "Functions and Arrow Functions",
@@ -72,21 +66,19 @@ function add(a, b) {
 ## Arrow Functions (ES6)
 \`\`\`javascript
 const add = (a, b) => a + b;
-\`\`\`
-
-## Why Arrow Functions?
-Besides being shorter, arrow functions handle the \`this\` keyword differently.
-
-## Async Functions
-\`\`\`javascript
-async function getUser(id) {
-  const res = await fetch(\`/api/users/\${id}\`);
-  return await res.json();
-}
-\`\`\`
-
-- \`async\`: marks the function as returning a Promise.
-- \`await\`: pauses until the Promise resolves.`,
+\`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Create an arrow function called `multiply` that takes two numbers and returns their product.",
+            walkthrough: "1. Type `const multiply = `.\n2. Add the parameters `(a, b)`.\n3. Use the arrow `=>`.\n4. Return the product `a * b`.",
+            expectedOutput: "=>",
+            starterHtml: "<h2 id='result'>Result: ...</h2>",
+            solutionHtml: "<h2 id='result'>Result: ...</h2>",
+            starterCss: "h2 { color: green; }",
+            solutionCss: "h2 { color: green; }",
+            starterJs: "// Create the multiply function here\n\n// Don't change this line\nif (typeof multiply !== 'undefined') {\n  document.getElementById('result').textContent = 'Result: ' + multiply(5, 4);\n}\n",
+            solutionJs: "const multiply = (a, b) => a * b;\n\nif (typeof multiply !== 'undefined') {\n  document.getElementById('result').textContent = 'Result: ' + multiply(5, 4);\n}\n"
+          },
         },
       ],
     },
@@ -107,20 +99,20 @@ The DOM (Document Object Model) is JavaScript's representation of the page.
 ## Selecting Elements
 \`\`\`javascript
 const header = document.querySelector("h1");
-const allLinks = document.querySelectorAll(".nav a");
-\`\`\`
-
-## Modifying Elements
-\`\`\`javascript
-const title = document.querySelector("#title");
-title.textContent = "New heading";   // safe
-title.innerHTML = "<em>Italic</em>"; // ⚠️ XSS risk
-title.classList.add("highlight");
-title.style.color = "red";
-\`\`\`
-
-## Security Note
-**Never use \`innerHTML\` with user-controlled data.** Use \`textContent\` or an escape helper.`,
+header.textContent = "New heading";
+\`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Select the element with the id `title` and change its text to `Updated!`.",
+            walkthrough: "1. Use `document.getElementById('title')`.\n2. Set its `.textContent` to `\"Updated!\"`.",
+            expectedOutput: "Updated!",
+            starterHtml: "<h1 id='title'>Original Text</h1>",
+            solutionHtml: "<h1 id='title'>Original Text</h1>",
+            starterCss: "h1 { color: red; }",
+            solutionCss: "h1 { color: green; }",
+            starterJs: "// Change the text below\n",
+            solutionJs: "document.getElementById('title').textContent = 'Updated!';\n"
+          },
         },
         {
           title: "Handling Events",
@@ -137,23 +129,19 @@ const button = document.querySelector("#save-btn");
 button.addEventListener("click", (event) => {
   console.log("Button clicked!");
 });
-\`\`\`
-
-## Common Events
-- \`click\`: mouse click
-- \`submit\`: form submission
-- \`input\`: while typing
-- \`keydown\` / \`keyup\`: keyboard
-
-## Preventing Default Behavior
-\`\`\`javascript
-form.addEventListener("submit", (e) => {
-  e.preventDefault(); // stop page reload
-  // handle manually
-});
-\`\`\`
-
-Without \`preventDefault()\`, form submissions reload the page.`,
+\`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Add an event listener to the button that changes the text to 'Clicked!' when clicked.",
+            walkthrough: "1. Select the button by ID.\n2. Use `.addEventListener('click', () => { ... })`.\n3. Inside the callback, update the text.",
+            expectedOutput: "addEventListener",
+            starterHtml: "<button id='btn'>Click me</button>\n<p id='output'>Waiting...</p>",
+            solutionHtml: "<button id='btn'>Click me</button>\n<p id='output'>Waiting...</p>",
+            starterCss: "button { padding: 10px 20px; background: blue; color: white; border: none; border-radius: 5px; }",
+            solutionCss: "button { padding: 10px 20px; background: blue; color: white; border: none; border-radius: 5px; }",
+            starterJs: "// Add your event listener here\n",
+            solutionJs: "document.getElementById('btn').addEventListener('click', () => {\n  document.getElementById('output').textContent = 'Clicked!';\n});\n"
+          },
         },
         {
           title: "Fetch API and Async",
@@ -166,33 +154,21 @@ Without \`preventDefault()\`, form submissions reload the page.`,
 
 ## Basic GET
 \`\`\`javascript
-const res = await fetch("/api/courses");
+const res = await fetch("/api/data");
 const data = await res.json();
-console.log(data.courses);
-\`\`\`
-
-## POST with JSON
-\`\`\`javascript
-const res = await fetch("/api/enrollments", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ slug: "html5" }),
-});
-const data = await res.json();
-\`\`\`
-
-## Handling Errors
-\`\`\`javascript
-try {
-  const res = await fetch("/api/courses");
-  if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
-  const data = await res.json();
-} catch (err) {
-  console.error("Failed:", err.message);
-}
-\`\`\`
-
-**\`fetch()\` does NOT throw on 4xx/5xx** — you must check \`res.ok\`.`,
+\`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Write an async function called `getData` that fetches from `'https://jsonplaceholder.typicode.com/todos/1'` and logs the data to the console.",
+            walkthrough: "1. Create an `async function getData() { ... }`.\n2. Inside, `const res = await fetch(...)`.\n3. Then `const data = await res.json()`.\n4. `console.log(data)`.",
+            expectedOutput: "fetch",
+            starterHtml: "<button id='fetchBtn'>Run Fetch</button>\n<p id='result'>Check console</p>",
+            solutionHtml: "<button id='fetchBtn'>Run Fetch</button>\n<p id='result'>Check console</p>",
+            starterCss: "button { padding: 10px 20px; background: purple; color: white; }",
+            solutionCss: "button { padding: 10px 20px; background: green; color: white; }",
+            starterJs: "// Create the async function here\n\n// Bind to button\nconst btn = document.getElementById('fetchBtn');\nbtn.addEventListener('click', () => {\n  if (typeof getData === 'function') getData();\n  else alert('getData function not found');\n});\n",
+            solutionJs: "async function getData() {\n  const res = await fetch('https://jsonplaceholder.typicode.com/todos/1');\n  const data = await res.json();\n  console.log(data);\n  document.getElementById('result').textContent = 'Data fetched! Check console.';\n}\n\nconst btn = document.getElementById('fetchBtn');\nbtn.addEventListener('click', () => {\n  if (typeof getData === 'function') getData();\n  else alert('getData function not found');\n});\n"
+          },
         },
       ],
     },

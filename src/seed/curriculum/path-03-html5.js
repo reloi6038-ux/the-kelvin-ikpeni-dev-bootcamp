@@ -50,11 +50,15 @@ Every HTML document has the same boilerplate:
 - \`<body>\`: Contains all visible content.`,
           exercise: {
             enabled: true,
-            starterHtml:
-              "<!DOCTYPE html>\n<html>\n<head><title>Test</title></head>\n<body>\n  <!-- Add your h1 here -->\n  \n</body>\n</html>",
-            instructions:
-              "Add an `<h1>` element with the text `Hello, HTML!` inside the body.",
-            expectedOutput: "<h1>Hello, HTML!</h1>",
+            instructions: "Add an `<h1>` element with the text `Hello, HTML!` inside the body.",
+            walkthrough: "1. Find the `<body>` tag.\n2. Inside it, type `<h1>Hello, HTML!</h1>`.\n3. Click 'Run' to see it appear in the preview.",
+            expectedOutput: "Hello, HTML!",
+            starterHtml: "<!DOCTYPE html>\n<html>\n<head><title>Test</title></head>\n<body>\n  <!-- Add your h1 here -->\n  \n</body>\n</html>",
+            solutionHtml: "<!DOCTYPE html>\n<html>\n<head><title>Test</title></head>\n<body>\n  <h1>Hello, HTML!</h1>\n</body>\n</html>",
+            starterCss: "",
+            solutionCss: "",
+            starterJs: "",
+            solutionJs: ""
           },
         },
         {
@@ -85,15 +89,19 @@ Semantic HTML means using tags that describe the *meaning* of the content, not j
 ### Why is this better?
 1. **Accessibility**: Screen readers can jump to \`<main>\` or navigate \`<nav>\`.
 2. **SEO**: Google understands your page structure better.
-3. **Maintainability**: Other developers instantly know what each section does.
-
-## Common Semantic Tags
-- \`<header>\`: Top of the page (logos, navigation).
-- \`<nav>\`: A block of navigation links.
-- \`<main>\`: The primary content (only one per page).
-- \`<section>\`: Thematic grouping of content.
-- \`<article>\`: Independent content (blog post, forum post).
-- \`<footer>\`: Bottom of the page.`,
+3. **Maintainability**: Other developers instantly know what each section does.`,
+          exercise: {
+            enabled: true,
+            instructions: "Convert the generic `<div>` tags into semantic `<header>` and `<main>` tags.",
+            walkthrough: "1. Change `<div id='header'>` to `<header>`.\n2. Change `<div id='content'>` to `<main>`.\n3. Ensure you close the tags with `</header>` and `</main>`.",
+            expectedOutput: "<header>",
+            starterHtml: "<div id='header'>\n  <h1>Welcome</h1>\n</div>\n<div id='content'>\n  <p>This is the main content.</p>\n</div>",
+            solutionHtml: "<header>\n  <h1>Welcome</h1>\n</header>\n<main>\n  <p>This is the main content.</p>\n</main>",
+            starterCss: "div, header, main { border: 1px solid blue; padding: 10px; margin-bottom: 10px; }",
+            solutionCss: "div, header, main { border: 1px solid blue; padding: 10px; margin-bottom: 10px; }",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "Links and Images",
@@ -106,22 +114,30 @@ Semantic HTML means using tags that describe the *meaning* of the content, not j
 \`\`\`html
 <a href="https://example.com">External link</a>
 <a href="/about.html">Internal link</a>
-<a href="#section-2">Anchor link</a>
-<a href="mailto:hi@example.com">Email link</a>
 \`\`\`
 
 - **href**: The destination URL.
 - **target="_blank"**: Opens in a new tab.
-- **rel="noopener"**: Security best practice for \`target="_blank"\`.
 
 ## Images
 \`\`\`html
-<img src="/images/photo.jpg" alt="A beautiful sunset" width="400" height="300">
+<img src="https://via.placeholder.com/150" alt="Placeholder" width="150">
 \`\`\`
 
 - **src**: The image file path.
-- **alt**: Text description for screen readers (required).
-- **width/height**: Prevent layout shift during loading.`,
+- **alt**: Text description for screen readers (required).`,
+          exercise: {
+            enabled: true,
+            instructions: "Create a link that goes to `https://github.com` and displays the text `Visit GitHub`.",
+            walkthrough: "1. Type `<a>`.\n2. Add the attribute `href=\"https://github.com\"`.\n3. Add the text `Visit GitHub` between the opening and closing tags.",
+            expectedOutput: "https://github.com",
+            starterHtml: "<!-- Create your link below -->\n",
+            solutionHtml: "<a href=\"https://github.com\">Visit GitHub</a>",
+            starterCss: "a { color: blue; font-size: 18px; }",
+            solutionCss: "a { color: blue; font-size: 18px; }",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
       ],
     },
@@ -137,11 +153,11 @@ Semantic HTML means using tags that describe the *meaning* of the content, not j
           estimatedMinutes: 25,
           content: `# Building Forms
 
-Forms collect user input. They are essential for login pages, search bars, and checkout flows.
+Forms collect user input.
 
 ## The Form Element
 \`\`\`html
-<form action="/submit" method="POST">
+<form>
   <label for="email">Email Address</label>
   <input type="email" id="email" name="email" required>
 
@@ -150,16 +166,21 @@ Forms collect user input. They are essential for login pages, search bars, and c
 \`\`\`
 
 ### Key Attributes
-- \`action\`: The URL the form sends data to.
-- \`method\`: \`POST\` for sensitive data, \`GET\` for search.
 - \`<label>\`: Tells the user what to enter. \`for\` must match the input's \`id\`.
 - \`name\`: The key sent to the server.
-- \`required\`: Built-in browser validation.
-
-## Input Types
-- \`text\`, \`email\`, \`password\`, \`number\`
-- \`checkbox\`, \`radio\`, \`file\`
-- \`date\`, \`color\`, \`range\``,
+- \`required\`: Built-in browser validation.`,
+          exercise: {
+            enabled: true,
+            instructions: "Create an `<input>` of type `text` with the id `username` and the name `username`. Add a `<label>` for it.",
+            walkthrough: "1. Add `<label for=\"username\">Username:</label>`.\n2. Add `<input type=\"text\" id=\"username\" name=\"username\">`.",
+            expectedOutput: "type=\"text\"",
+            starterHtml: "<form>\n  <!-- Add your label and input here -->\n</form>",
+            solutionHtml: "<form>\n  <label for=\"username\">Username:</label>\n  <input type=\"text\" id=\"username\" name=\"username\">\n</form>",
+            starterCss: "label { display: block; margin-bottom: 5px; }\ninput { padding: 5px; }",
+            solutionCss: "label { display: block; margin-bottom: 5px; }\ninput { padding: 5px; }",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "Form Validation",
@@ -168,16 +189,25 @@ Forms collect user input. They are essential for login pages, search bars, and c
           estimatedMinutes: 20,
           content: `# Form Validation
 
-Never trust user input. Users will enter garbage data, either by accident or on purpose.
+Never trust user input. HTML5 provides built-in attributes to validate before submission.
 
-## Client-Side Validation
-HTML5 provides built-in attributes to validate before submission.
+## Validation Attributes
 - \`required\`: Cannot be empty.
 - \`minlength="3"\`: Minimum characters.
 - \`maxlength="20"\`: Maximum characters.
-- \`pattern="[0-9]{5}"\`: A regular expression.
-
-**Warning:** Client-side validation is for user experience. A malicious user can bypass it. **You must always validate on the server.**`,
+- \`pattern="[0-9]{5}"\`: A regular expression.`,
+          exercise: {
+            enabled: true,
+            instructions: "Make the existing input required and ensure it cannot be more than 10 characters.",
+            walkthrough: "1. Find the `<input>` tag.\n2. Add `required` inside the tag.\n3. Add `maxlength=\"10\"` inside the tag.",
+            expectedOutput: "maxlength=\"10\"",
+            starterHtml: "<form>\n  <input type=\"text\" id=\"code\">\n  <button>Submit</button>\n</form>",
+            solutionHtml: "<form>\n  <input type=\"text\" id=\"code\" required maxlength=\"10\">\n  <button>Submit</button>\n</form>",
+            starterCss: "input { border: 2px solid red; }",
+            solutionCss: "input { border: 2px solid green; }",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
       ],
     },

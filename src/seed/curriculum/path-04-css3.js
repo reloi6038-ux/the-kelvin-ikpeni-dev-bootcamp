@@ -28,27 +28,28 @@ CSS selectors target HTML elements to style.
 
 ## Basic selectors
 \`\`\`css
-/* Element */
-p { color: blue; }
-
-/* Class */
-.highlight { background: yellow; }
-
-/* ID */
-#header { font-size: 2rem; }
-
-/* Descendant */
-nav a { color: white; }
+p { color: blue; }          /* Element */
+.highlight { color: red; }  /* Class */
+#header { font-size: 2rem; } /* ID */
 \`\`\`
 
 ## Specificity Rules
-When multiple rules match, the **most specific** wins:
-1. **ID** (\`#header\`) — highest
-2. **Class** (\`.highlight\`), attribute, pseudo-class
-3. **Element** (\`p\`, \`nav\`) — lowest
-
-## Tip
-Prefer classes over IDs for styling. IDs are for JavaScript hooks and anchor links.`,
+When multiple rules match, the most specific wins:
+1. **ID** (\`#header\`)
+2. **Class** (\`.highlight\`)
+3. **Element** (\`p\`)`,
+          exercise: {
+            enabled: true,
+            instructions: "Change the color of the element with the class `.text-red` to red.",
+            walkthrough: "1. Use the selector `.text-red`.\n2. Set `color: red;`.",
+            expectedOutput: "color: red",
+            starterHtml: "<p class='text-red'>This text should be red.</p>\n<p class='text-blue'>This text is blue.</p>",
+            solutionHtml: "<p class='text-red'>This text should be red.</p>\n<p class='text-blue'>This text is blue.</p>",
+            starterCss: "/* Add your CSS here */\n",
+            solutionCss: ".text-red {\n  color: red;\n}\n.text-blue {\n  color: blue;\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "The Box Model",
@@ -59,22 +60,6 @@ Prefer classes over IDs for styling. IDs are for JavaScript hooks and anchor lin
 
 Every element is a rectangular box with four layers.
 
-## The Layers
-\`\`\`
-┌─────────────────────────────────┐
-│         margin (outside)        │
-│  ┌───────────────────────────┐  │
-│  │     border                │  │
-│  │  ┌─────────────────────┐  │  │
-│  │  │   padding            │  │  │
-│  │  │  ┌───────────────┐  │  │  │
-│  │  │  │   content     │  │  │  │
-│  │  │  └───────────────┘  │  │  │
-│  │  └─────────────────────┘  │  │
-│  └───────────────────────────┘  │
-└─────────────────────────────────┘
-\`\`\`
-
 ## Critical Rule: box-sizing
 \`\`\`css
 * {
@@ -82,7 +67,19 @@ Every element is a rectangular box with four layers.
 }
 \`\`\`
 
-Without this, \`width: 100px\` + \`padding: 10px\` = **120px total width**. With \`border-box\`, it stays at 100px. **Always set this.**`,
+Without this, \`width: 100px\` + \`padding: 10px\` = **120px total width**.`,
+          exercise: {
+            enabled: true,
+            instructions: "Add `box-sizing: border-box;` to the universal selector `*`.",
+            walkthrough: "1. Select everything using `*`.\n2. Add `box-sizing: border-box;`.",
+            expectedOutput: "box-sizing: border-box",
+            starterHtml: "<div class='box'>I am 100px wide.</div>",
+            solutionHtml: "<div class='box'>I am 100px wide.</div>",
+            starterCss: "* {\n  /* Add box-sizing here */\n}\n.box {\n  width: 100px;\n  padding: 20px;\n  border: 1px solid black;\n}",
+            solutionCss: "* {\n  box-sizing: border-box;\n}\n.box {\n  width: 100px;\n  padding: 20px;\n  border: 1px solid black;\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "Typography and Colors",
@@ -91,14 +88,13 @@ Without this, \`width: 100px\` + \`padding: 10px\` = **120px total width**. With
           estimatedMinutes: 20,
           content: `# Typography and Colors
 
-## Typography
+## CSS Variables
 \`\`\`css
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
+:root {
+  --primary: #4a9eff;
+  --text: #e6e9f0;
 }
+button { background: var(--primary); }
 \`\`\`
 
 ## Font Sizes with clamp()
@@ -107,31 +103,19 @@ h1 {
   font-size: clamp(2rem, 5vw, 3.5rem);
 }
 \`\`\`
-This scales smoothly between 2rem and 3.5rem based on viewport width.
-
-## Colors
-\`\`\`css
-/* Hex */
-color: #4a9eff;
-
-/* RGB */
-color: rgb(74, 158, 255);
-
-/* HSL (easier to tweak) */
-color: hsl(211, 100%, 65%);
-
-/* With opacity */
-color: rgba(74, 158, 255, 0.5);
-\`\`\`
-
-## CSS Variables
-\`\`\`css
-:root {
-  --primary: #4a9eff;
-  --text: #e6e9f0;
-}
-button { background: var(--primary); }
-\`\`\``,
+This scales smoothly between 2rem and 3.5rem based on viewport width.`,
+          exercise: {
+            enabled: true,
+            instructions: "Use the CSS variable `--primary` to set the background color of the `.btn` class.",
+            walkthrough: "1. Select `.btn`.\n2. Add `background-color: var(--primary);`.",
+            expectedOutput: "var(--primary)",
+            starterHtml: "<button class='btn'>Click Me</button>",
+            solutionHtml: "<button class='btn'>Click Me</button>",
+            starterCss: ":root {\n  --primary: #ff6b6b;\n}\n.btn {\n  color: white;\n  padding: 10px 20px;\n  border: none;\n  /* Add background here */\n}",
+            solutionCss: ":root {\n  --primary: #ff6b6b;\n}\n.btn {\n  color: white;\n  padding: 10px 20px;\n  border: none;\n  background-color: var(--primary);\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
       ],
     },
@@ -147,36 +131,28 @@ button { background: var(--primary); }
           estimatedMinutes: 25,
           content: `# Flexbox Fundamentals
 
-Flexbox is for laying out items **in one dimension** (row or column).
+Flexbox is for laying out items **in one dimension**.
 
 ## Basic Usage
 \`\`\`css
 .container {
   display: flex;
-  gap: 1rem;
-}
-\`\`\`
-
-## Key Properties (on container)
-- \`flex-direction\`: \`row\` (default) or \`column\`
-- \`justify-content\`: horizontal alignment
-- \`align-items\`: vertical alignment
-- \`gap\`: space between items
-- \`flex-wrap\`: allow wrapping
-
-## Key Properties (on children)
-- \`flex: 1\`: grow to fill available space
-- \`flex-shrink: 0\`: prevent shrinking
-
-## Common Patterns
-**Center anything:**
-\`\`\`css
-.center {
-  display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 \`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Make the `.container` use flexbox so the three boxes sit side-by-side, centered, with a 10px gap.",
+            walkthrough: "1. Select `.container` and set `display: flex;`.\n2. Add `justify-content: center;` to center them horizontally.\n3. Add `gap: 10px;` for spacing.",
+            expectedOutput: "display: flex",
+            starterHtml: "<div class='container'>\n  <div class='box'>1</div>\n  <div class='box'>2</div>\n  <div class='box'>3</div>\n</div>",
+            solutionHtml: "<div class='container'>\n  <div class='box'>1</div>\n  <div class='box'>2</div>\n  <div class='box'>3</div>\n</div>",
+            starterCss: ".container {\n  /* Add flexbox here */\n  background: #eee;\n  padding: 20px;\n}\n.box {\n  background: #4a9eff;\n  color: white;\n  padding: 20px;\n}",
+            solutionCss: ".container {\n  display: flex;\n  justify-content: center;\n  gap: 10px;\n  background: #eee;\n  padding: 20px;\n}\n.box {\n  background: #4a9eff;\n  color: white;\n  padding: 20px;\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "CSS Grid",
@@ -185,16 +161,7 @@ Flexbox is for laying out items **in one dimension** (row or column).
           estimatedMinutes: 25,
           content: `# CSS Grid
 
-Grid is for **two-dimensional** layouts (rows AND columns).
-
-## Basic Usage
-\`\`\`css
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-\`\`\`
+Grid is for **two-dimensional** layouts.
 
 ## Responsive Magic
 \`\`\`css
@@ -204,13 +171,19 @@ Grid is for **two-dimensional** layouts (rows AND columns).
   gap: 1rem;
 }
 \`\`\`
-Automatically creates as many 300px+ columns as fit. **No media queries needed.**
-
-## Flexbox vs Grid
-- **Flexbox** — one dimension (nav bar, row of cards)
-- **Grid** — two dimensions (page layout, photo gallery)
-
-Use both together: Grid for the overall page, Flexbox inside components.`,
+Automatically creates as many 300px+ columns as fit.`,
+          exercise: {
+            enabled: true,
+            instructions: "Make the `.grid` container have 2 equal columns using CSS Grid.",
+            walkthrough: "1. Set `display: grid;` on `.grid`.\n2. Set `grid-template-columns: 1fr 1fr;` (or `repeat(2, 1fr)`).",
+            expectedOutput: "display: grid",
+            starterHtml: "<div class='grid'>\n  <div class='item'>A</div>\n  <div class='item'>B</div>\n  <div class='item'>C</div>\n  <div class='item'>D</div>\n</div>",
+            solutionHtml: "<div class='grid'>\n  <div class='item'>A</div>\n  <div class='item'>B</div>\n  <div class='item'>C</div>\n  <div class='item'>D</div>\n</div>",
+            starterCss: ".grid {\n  /* Add grid here */\n  gap: 10px;\n}\n.item {\n  background: #ff6b6b;\n  color: white;\n  padding: 20px;\n}",
+            solutionCss: ".grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 10px;\n}\n.item {\n  background: #ff6b6b;\n  color: white;\n  padding: 20px;\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
         {
           title: "Responsive Design",
@@ -219,31 +192,24 @@ Use both together: Grid for the overall page, Flexbox inside components.`,
           estimatedMinutes: 25,
           content: `# Responsive Design
 
-Users visit on phones, tablets, laptops, and desktops. Layouts must adapt.
-
-## The Viewport Meta Tag
-\`\`\`html
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-\`\`\`
-**Without this**, phones render at desktop width and zoom out — unreadable.
-
 ## Media Queries
 \`\`\`css
 @media (min-width: 768px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
-
-@media (min-width: 1024px) {
-  .grid { grid-template-columns: repeat(3, 1fr); }
-}
-\`\`\`
-
-## Mobile-First Approach
-1. Write base styles for mobile.
-2. Add \`min-width\` media queries for larger screens.
-3. **Never** write \`max-width\` if you can avoid it.
-
-Mobile-first produces cleaner, faster-loading sites.`,
+\`\`\``,
+          exercise: {
+            enabled: true,
+            instructions: "Add a media query so that when the screen is `768px` or wider, the `.box` background turns green.",
+            walkthrough: "1. Type `@media (min-width: 768px) {`.\n2. Inside, add `.box { background: green; }`.\n3. Close the brace `}`.",
+            expectedOutput: "@media (min-width: 768px)",
+            starterHtml: "<div class='box'>Resize me</div>",
+            solutionHtml: "<div class='box'>Resize me</div>",
+            starterCss: ".box {\n  background: blue;\n  color: white;\n  padding: 20px;\n}\n/* Add media query here */",
+            solutionCss: ".box {\n  background: blue;\n  color: white;\n  padding: 20px;\n}\n@media (min-width: 768px) {\n  .box { background: green; }\n}",
+            starterJs: "",
+            solutionJs: ""
+          },
         },
       ],
     },
