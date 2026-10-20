@@ -1,164 +1,104 @@
+// Path 9: MongoDB & Mongoose
 module.exports = {
   course: {
     title: "MongoDB & Mongoose",
     slug: "mongodb",
-    description: "Schemas, models, CRUD operations, and MongoDB Atlas.",
+    description:
+      "Schemas, models, CRUD operations, and MongoDB Atlas.",
     level: "intermediate",
-    estimatedHours: 12,
+    estimatedHours: 16,
     icon: "mongodb",
     order: 9,
     isPublished: true,
   },
   modules: [
     {
-      title: "MongoDB Basics",
-      description: "Collections, documents, and queries.",
+      title: "MongoDB Fundamentals",
+      description: "Documents, collections, and queries.",
       order: 1,
       lessons: [
         {
           title: "Documents and Collections",
           slug: "documents-collections",
           order: 1,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Documents and Collections
 
-MongoDB is a **document database**. Instead of tables and rows, it stores:
+MongoDB is a **document database** using JSON-like documents.
 
-- **Documents** — JSON-like objects
-- **Collections** — groups of documents
+## Structure
+- **Database**: \`kelvin-bootcamp\`
+- **Collection**: \`courses\`, \`users\`
+- **Document**: JSON record
 
-## Anatomy of a document
 \`\`\`json
 {
   "_id": ObjectId("..."),
   "title": "HTML5 Mastery",
-  "slug": "html5",
-  "level": "beginner",
-  "isPublished": true,
-  "createdAt": "2026-01-15T..."
+  "isPublished": true
 }
 \`\`\`
 
-Every document has a unique \`_id\`. If you don't provide one, MongoDB generates it.
-
-## Collections vs tables
-| SQL | MongoDB |
-|-----|---------|
-| Table | Collection |
-| Row | Document |
-| Column | Field |
-| Foreign key | ObjectId reference |
-
-## Why MongoDB
-- Flexible schemas (add a field without migrations)
-- Native JSON — perfect for JavaScript
-- Scales horizontally easily
-
-## In this bootcamp
-Mongoose adds structure — schemas and validation — on top of MongoDB.`,
+## \_id and ObjectId
+Every document has a unique \`_id\`. If you don't provide one, MongoDB generates it.`,
         },
         {
           title: "Mongoose Schemas & Models",
           slug: "mongoose-schemas",
           order: 2,
-          estimatedMinutes: 25,
+          estimatedMinutes: 30,
           content: `# Mongoose Schemas & Models
 
-Mongoose gives MongoDB **structure and validation**.
+Mongoose adds structure and validation on top of MongoDB.
 
-## Define a schema
-\`\`\`js
-const courseSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    level: {
-      type: String,
-      enum: ["beginner", "intermediate", "advanced"],
-    },
-    isPublished: { type: Boolean, default: false },
-  },
-  { timestamps: true }
-);
+## Schema
+\`\`\`javascript
+const courseSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  isPublished: { type: Boolean, default: false },
+}, { timestamps: true });
 \`\`\`
 
-## Create a model
-\`\`\`js
+## Model
+\`\`\`javascript
 const Course = mongoose.model("Course", courseSchema);
 \`\`\`
 
-The model name \`"Course"\` becomes the collection name \`courses\` (lowercase, plural).
-
-## CRUD operations
-\`\`\`js
-// Create
-const course = await Course.create({ title: "HTML5", slug: "html5" });
-
-// Read
-const courses = await Course.find({ isPublished: true });
-const one = await Course.findOne({ slug: "html5" });
-
-// Update
-await Course.updateOne({ slug: "html5" }, { $set: { isPublished: true } });
-
-// Delete
-await Course.deleteOne({ slug: "html5" });
-\`\`\`
-
-## Why schemas matter
-- **Validation** — reject bad data at the database layer
-- **Type safety** — catch bugs before they happen
-- **Indexes** — mark fields as \`index: true\` for fast queries`,
+The model name \`"Course"\` becomes the \`courses\` collection.`,
         },
         {
-          title: "Queries, Indexes & Pagination",
-          slug: "queries-indexes",
+          title: "CRUD Operations",
+          slug: "crud-operations",
           order: 3,
-          estimatedMinutes: 25,
-          content: `# Queries, Indexes & Pagination
+          estimatedMinutes: 30,
+          content: `# CRUD Operations
 
-## Query operators
-\`\`\`js
-// Equality
-await Course.find({ level: "beginner" });
-
-// Comparison
-await Course.find({ order: { $gt: 0 } });
-
-// Compound
-await Course.find({ isPublished: true, level: "beginner" });
-
-// Sort + limit
-await Course.find({}).sort({ order: 1 }).limit(10);
+## Create
+\`\`\`javascript
+const course = await Course.create({ title: "HTML5", slug: "html5" });
 \`\`\`
 
-## Indexes
-Without an index, every query scans **every document**.
-
-\`\`\`js
-courseSchema.index({ isPublished: 1, order: 1 });
+## Read
+\`\`\`javascript
+const course = await Course.findById(id);
+const all = await Course.find({ isPublished: true });
 \`\`\`
 
-This turns an O(n) scan into an O(log n) lookup. **Always index the fields you query by.**
-
-## Pagination
-Never return 10,000 records at once.
-
-\`\`\`js
-const page = Number(req.query.page) || 1;
-const perPage = 20;
-
-const courses = await Course.find({})
-  .skip((page - 1) * perPage)
-  .limit(perPage);
+## Update
+\`\`\`javascript
+await Course.findByIdAndUpdate(id, { title: "Updated" });
 \`\`\`
 
-## The .lean() trick
-\`\`\`js
-await Course.find().lean();
+## Delete
+\`\`\`javascript
+await Course.findByIdAndDelete(id);
 \`\`\`
 
-Returns plain JS objects instead of Mongoose documents — **~30% faster** and less memory. Use it for read-only queries.`,
+## The .lean() Trick
+\`\`\`javascript
+await Course.find().lean(); // 3x faster for read-only queries
+\`\`\``,
         },
       ],
     },

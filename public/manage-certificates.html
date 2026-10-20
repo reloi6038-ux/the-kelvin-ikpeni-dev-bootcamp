@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Certificates — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo"><span class="nav-logo-mark">K</span><span>Admin</span></a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-exams">Exams</a></li>
+      </ul>
+      <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header"><div class="container"><h1>Manage Certificates</h1></div></section>
+    <section class="section">
+      <div class="container">
+        <div id="certs-error" class="state-message error" style="display:none;"></div>
+        <div id="certs-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    (async function () {
+      const user = await admin.guard();
+      if (!user) return;
+      const listEl = document.getElementById("certs-list");
+      const errEl = document.getElementById("certs-error");
+
+      async function load() {
+        try {
+          const res = await admin.adminRequest("/api/admin/certificates");
+          if (res.count === 0) {
+            listEl.innerHTML = `<div class="state-message">No certificates issued yet.</div>`;
+            return;
+          }
+          listEl.innerHTML = res.certificates
+            .map(
+              (c) => `
+              <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap;">
+                <div>
+                  <strong>${escapeHtml(c.studentName)}</strong> — ${escapeHtml(c.courseTitle)}
+                  <p style="margin: var(--sp-1) 0 0; font-family: var(--font-mono); font-size:0.85rem; color: var(--primary);">
+                    ${escapeHtml(c.certificateId)}
+                  </p>
+                  <p style="margin: 0; color: var(--text-dim); font-size:0.8rem;">
+                    Issued ${new Date(c.issuedAt).toLocaleDateString()}
+                    ${c.revoked ? ` · <span style="color:var(--danger);">REVOKED: ${escapeHtml(c.revocationReason || "")}</span>` : ""}
+                  </p>
+                </div>
+                <div style="display:flex; gap: var(--sp-2);">
+                  <a class="btn btn-secondary" href="/verify-certificate.html?id=${encodeURIComponent(c.certificateId)}" target="_blank">Verify</a>
+                  ${!c.revoked ? `<button class="btn btn-secondary revoke-btn" data-id="${c.certificateId}" style="color: var(--danger);">Revoke</button>` : ""}
+                </div>
+              </div>`
+            )
+            .join("");
+
+          listEl.querySelectorAll(".revoke-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const reason = prompt("Reason for revocation (required):");
+              if (!reason) return;
+              try {
+                await admin.adminRequest(`/api/admin/certificates/${btn.dataset.id}/revoke`, {
+                  method: "POST",
+                  body: { reason },
+                });
+                load();
+              } catch (err) { alert(err.message); }
+            });
+          });
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        }
+      }
+      load();
+    })();
+  </script>
+</body>
+</html>

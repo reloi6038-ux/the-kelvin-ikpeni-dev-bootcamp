@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Courses — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp · Admin</span>
+      </a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-exams">Exams</a></li>
+      </ul>
+      <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Manage Courses</h1>
+        <p>Create, edit, publish, or delete courses.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="courses-error" class="state-message error" style="display:none;"></div>
+
+        <button class="btn btn-primary mb-4" id="new-course-btn">+ New Course</button>
+
+        <div id="new-course-form" class="course-card" style="display:none; margin-bottom: var(--sp-6);">
+          <h3>Create Course</h3>
+          <div class="form-group"><label>Title</label><input id="c-title" type="text"></div>
+          <div class="form-group"><label>Slug</label><input id="c-slug" type="text" placeholder="e.g. my-new-course"></div>
+          <div class="form-group"><label>Description</label><textarea id="c-desc" rows="3"></textarea></div>
+          <div class="form-group"><label>Level</label>
+            <select id="c-level">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Estimated Hours</label><input id="c-hours" type="number" min="1" value="10"></div>
+          <div class="form-group"><label>Order</label><input id="c-order" type="number" value="0"></div>
+          <button class="btn btn-primary" id="create-course-btn">Create</button>
+          <button class="btn btn-secondary" id="cancel-create-btn">Cancel</button>
+        </div>
+
+        <div id="courses-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    (async function () {
+      const user = await admin.guard();
+      if (!user) return;
+
+      const errEl = document.getElementById("courses-error");
+      const listEl = document.getElementById("courses-list");
+      const formEl = document.getElementById("new-course-form");
+
+      document.getElementById("new-course-btn").addEventListener("click", () => {
+        formEl.style.display = "block";
+      });
+      document.getElementById("cancel-create-btn").addEventListener("click", () => {
+        formEl.style.display = "none";
+      });
+
+      document.getElementById("create-course-btn").addEventListener("click", async () => {
+        try {
+          const body = {
+            title: document.getElementById("c-title").value.trim(),
+            slug: document.getElementById("c-slug").value.trim().toLowerCase(),
+            description: document.getElementById("c-desc").value.trim(),
+            level: document.getElementById("c-level").value,
+            estimatedHours: parseInt(document.getElementById("c-hours").value) || 10,
+            order: parseInt(document.getElementById("c-order").value) || 0,
+          };
+          await admin.adminRequest("/api/admin/courses", { method: "POST", body });
+          window.location.reload();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      async function load() {
+        try {
+          const res = await admin.adminRequest("/api/admin/courses");
+          listEl.innerHTML = res.courses
+            .map(
+              (c) => `
+                <div class="course-card" style="margin-bottom: var(--sp-3);">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--sp-3); flex-wrap:wrap;">
+                    <div>
+                      <h3 style="margin:0 0 var(--sp-1);">${escapeHtml(c.title)}</h3>
+                      <p style="margin:0; color:var(--text-muted); font-size:0.85rem;">
+                        <code>${escapeHtml(c.slug)}</code> ·
+                        ${escapeHtml(c.level)} ·
+                        ${c.moduleCount} modules ·
+                        ${c.lessonCount} lessons ·
+                        ${c.enrollmentCount} enrolled
+                      </p>
+                    </div>
+                    <div style="display:flex; gap: var(--sp-2); flex-wrap:wrap;">
+                      <span style="padding: 2px 10px; border-radius: 999px; font-size:0.8rem; ${c.isPublished ? "background: rgba(52,199,89,0.15); color: var(--success);" : "background: rgba(255,184,74,0.15); color: var(--warning);"}">
+                        ${c.isPublished ? "Published" : "Draft"}
+                      </span>
+                      <button class="btn btn-secondary toggle-pub" data-id="${c._id}" data-current="${c.isPublished}">
+                        ${c.isPublished ? "Unpublish" : "Publish"}
+                      </button>
+                      <button class="btn btn-secondary delete-course" data-id="${c._id}" style="color: var(--danger);">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>`
+            )
+            .join("");
+
+          listEl.querySelectorAll(".toggle-pub").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const id = btn.dataset.id;
+              const current = btn.dataset.current === "true";
+              try {
+                await admin.adminRequest(`/api/admin/courses/${id}`, {
+                  method: "PATCH",
+                  body: { isPublished: !current },
+                });
+                load();
+              } catch (err) { alert(err.message); }
+            });
+          });
+
+          listEl.querySelectorAll(".delete-course").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              if (!confirm("Delete this course and all its modules/lessons/quizzes?")) return;
+              try {
+                await admin.adminRequest(`/api/admin/courses/${btn.dataset.id}`, { method: "DELETE" });
+                load();
+              } catch (err) { alert(err.message); }
+            });
+          });
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        }
+      }
+
+      load();
+    })();
+  </script>
+</body>
+</html>

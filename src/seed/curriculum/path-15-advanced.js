@@ -1,8 +1,10 @@
+// Path 15: Advanced Full-Stack Engineering
 module.exports = {
   course: {
     title: "Advanced Full-Stack Engineering",
     slug: "advanced-fullstack",
-    description: "Production-grade architecture, performance, and scalability.",
+    description:
+      "Production-grade architecture, performance tuning, and scalability.",
     level: "advanced",
     estimatedHours: 30,
     icon: "advanced",
@@ -30,7 +32,7 @@ Real applications defend against:
 - **Session hijacking** — stolen cookies
 - **Brute force** — repeated login attempts
 
-## Core principles
+## Core Principles
 1. **Never trust the client.** Validate on the server.
 2. **Hash passwords** with bcrypt.
 3. **Set security headers** with Helmet.
@@ -47,27 +49,24 @@ Every one of these is implemented in this bootcamp's authentication layer.`,
           estimatedMinutes: 25,
           content: `# Performance & Scaling
 
-## Database indexes
-Queries without indexes scan every document. Every indexed field turns an O(n) scan into an O(log n) lookup. This bootcamp indexes:
-- \`User.email\` (unique)
-- \`Course.slug\` (unique)
-- \`Course.isPublished + order\` (compound)
-- \`Enrollment.studentId + courseId\` (unique)
+## Database Indexes
+Queries without indexes scan every document. Indexed fields turn an O(n) scan into an O(log n) lookup.
+
+\`\`\`javascript
+courseSchema.index({ isPublished: 1, order: 1 });
+\`\`\`
 
 ## Caching
 Store frequently-read data in Redis or memory. Invalidate on write.
 
 ## Pagination
-Never return 10,000 records at once.
-
-\`\`\`js
+Never return 10,000 records at once:
+\`\`\`javascript
 await Course.find().skip((page - 1) * 20).limit(20);
 \`\`\`
 
-## Horizontal scaling
-Run multiple Node processes behind a load balancer. Keep sessions in MongoDB (already done) so any process can verify any request.
-
-These are what distinguish a portfolio project from a production system.`,
+## Horizontal Scaling
+Run multiple Node processes behind a load balancer. Keep sessions in MongoDB (already done) so any process can verify any request.`,
         },
       ],
     },

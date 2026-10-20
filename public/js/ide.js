@@ -120,8 +120,8 @@
 
   // --- Reset to starter code ---
   function resetEditors() {
-    if (!lessonData) return;
-    const ex = lessonData.lesson.exercise || {};
+    if (!lessonData || !lessonData.exercise) return;
+    const ex = lessonData.exercise;
     if (editors.html) editors.html.setValue(ex.starterHtml || "");
     if (editors.css) editors.css.setValue(ex.starterCss || "");
     if (editors.js) editors.js.setValue(ex.starterJs || "");
@@ -132,7 +132,12 @@
 
   // --- Submit for grading ---
   async function submitExercise() {
-    if (!lessonData) return;
+    // SAFETY CHECK: Ensure lessonData and lessonId exist before submitting
+    if (!lessonData || !lessonData._id) {
+      document.getElementById("ide-status").textContent = "Error: Lesson data missing.";
+      return;
+    }
+
     const statusEl = document.getElementById("ide-status");
     const resultsEl = document.getElementById("ide-results");
     const submitBtn = document.getElementById("ide-submit");
@@ -141,19 +146,27 @@
     submitBtn.disabled = true;
 
     try {
-      const csrfRes = await apiRequest("/api/auth/csrf");
-      const res = await apiRequest(
-        `/api/exercises/${lessonData.lesson._id}/submit`,
+      const csrfRes = await fetch("/api/auth/csrf");
+      const csrfData = await csrfRes.json();
+
+      const response = await fetch(
+        `/api/exercises/${lessonData._id}/submit`,
         {
           method: "POST",
-          headers: { "X-CSRF-Token": csrfRes.csrfToken },
-          body: {
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfData.csrfToken
+          },
+          body: JSON.stringify({
             html: editors.html ? editors.html.getValue() : "",
             css: editors.css ? editors.css.getValue() : "",
             js: editors.js ? editors.js.getValue() : "",
-          },
+          }),
         }
       );
+
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.message || "Submission failed");
 
       resultsEl.style.display = "block";
       resultsEl.innerHTML = `
@@ -175,7 +188,6 @@
         ? "✅ Lesson marked complete."
         : "Review results below and try again.";
 
-      // If passed, mark lesson UI as complete
       if (res.passed && window.__lessonOnComplete) {
         window.__lessonOnComplete();
       }
@@ -189,6 +201,12 @@
   // --- Public API ---
   window.ideController = {
     async mount(lesson) {
+      // SAFETY CHECK: Verify the lesson object has an _id
+      if (!lesson || !lesson._id) {
+        console.error("IDE Mount Error: Lesson object or ID is missing.");
+        return;
+      }
+
       lessonData = lesson;
       const ex = lesson.exercise;
       if (!ex || !ex.enabled) return;
@@ -196,7 +214,6 @@
       const root = document.getElementById("ide-root");
       if (!root) return;
 
-      // Render instructions above the IDE
       root.innerHTML = `
         <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-4); margin-bottom: var(--sp-4);">
           <strong style="color: var(--primary);">📝 Instructions:</strong>
@@ -205,27 +222,22 @@
         ${buildIdeHtml(ex)}
       `;
 
-      // Show instruction in heading
       const monaco = await ensureMonaco();
 
       editors.html = createEditor(monaco, "editor-html", "html", ex.starterHtml || "");
       editors.css = createEditor(monaco, "editor-css", "css", ex.starterCss || "");
       editors.js = createEditor(monaco, "editor-js", "javascript", ex.starterJs || "");
 
-      // Auto-run on first load
       updatePreview();
 
-      // Wire buttons
       document.getElementById("ide-run").addEventListener("click", updatePreview);
       document.getElementById("ide-reset").addEventListener("click", resetEditors);
       document.getElementById("ide-submit").addEventListener("click", submitExercise);
 
-      // Wire tabs
       document.querySelectorAll(".ide-tab").forEach((btn) => {
         btn.addEventListener("click", () => switchTab(btn.dataset.tab));
       });
 
-      // Live preview as you type (debounced)
       let previewTimer = null;
       ["html", "css", "js"].forEach((lang) => {
         if (editors[lang]) {

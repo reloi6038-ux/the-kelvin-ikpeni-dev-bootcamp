@@ -73,22 +73,37 @@
       const errEl = document.getElementById("reg-error");
       const submitBtn = document.getElementById("reg-submit");
 
+      // Pre-fetch CSRF token
       try { await fetch("/api/auth/csrf"); } catch {}
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errEl.textContent = "";
+
+        // Use FormData to guarantee we capture autofilled values
+        const data = new FormData(form);
+        const name = (data.get("name") || "").toString().trim();
+        const email = (data.get("email") || "").toString().trim();
+        const password = (data.get("password") || "").toString();
+
+        if (!name || name.length < 2) {
+          errEl.textContent = "Please enter your full name.";
+          return;
+        }
+        if (!email) {
+          errEl.textContent = "Please enter your email address.";
+          return;
+        }
+        if (!password || password.length < 8) {
+          errEl.textContent = "Password must be at least 8 characters.";
+          return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.textContent = "Creating account...";
 
-        const data = {
-          name: form.name.value.trim(),
-          email: form.email.value.trim(),
-          password: form.password.value,
-        };
-
         try {
-          await auth.register(data);
+          await auth.register({ name, email, password });
           window.location.href = "/dashboard.html";
         } catch (err) {
           errEl.textContent = err.message || "Registration failed.";

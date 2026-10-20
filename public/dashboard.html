@@ -23,7 +23,7 @@
         <li><a href="/certificates.html">Certificates</a></li>
       </ul>
       <div class="nav-cta">
-        <button class="btn btn-secondary" id="logout-btn">Log out</button>
+        <a href="/dashboard.html" class="btn btn-primary">My Dashboard</a>
       </div>
     </div>
   </header>
@@ -44,7 +44,13 @@
           <!-- Profile -->
           <h2>Your profile</h2>
           <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8);">
-            <p><strong>Name:</strong> <span id="profile-name">—</span></p>
+            <div style="display:flex; gap: var(--sp-2); align-items:center; margin-bottom: var(--sp-2);">
+              <p style="margin:0;"><strong>Name:</strong></p>
+              <input type="text" id="profile-name" style="padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: white; width: 200px;" placeholder="Enter your name">
+              <button id="save-name-btn" class="btn btn-primary" style="padding: 8px 16px;">Save</button>
+            </div>
+            <p id="name-status" style="font-size: 0.85rem; color: var(--success); min-height: 1.2em; margin-top: 4px;"></p>
+            
             <p><strong>Email:</strong> <span id="profile-email">—</span></p>
             <p><strong>Role:</strong> <span id="profile-role">—</span></p>
             <p><strong>Joined:</strong> <span id="profile-joined">—</span></p>
@@ -82,19 +88,62 @@
       const errEl = document.getElementById("dashboard-error");
       const content = document.getElementById("dashboard-content");
       const welcome = document.getElementById("welcome-heading");
-      const logoutBtn = document.getElementById("logout-btn");
+      const nameInput = document.getElementById("profile-name");
+      const saveBtn = document.getElementById("save-name-btn");
+      const nameStatus = document.getElementById("name-status");
 
       try {
         const user = await auth.requireAuthOrRedirect();
         if (!user) return;
 
-        welcome.textContent = `Welcome, ${user.name.split(" ")[0]}!`;
-        document.getElementById("profile-name").textContent = user.name;
+        // Set Welcome message
+        const displayName = user.name === "Guest Student" ? "" : user.name;
+        welcome.textContent = displayName ? `Welcome, ${displayName}!` : "Welcome to your Dashboard!";
+        nameInput.value = displayName;
+
         document.getElementById("profile-email").textContent = user.email;
         document.getElementById("profile-role").textContent = user.role;
         document.getElementById("profile-joined").textContent = user.createdAt
           ? new Date(user.createdAt).toLocaleDateString()
           : "—";
+
+        // Save Name Button Logic
+        saveBtn.addEventListener("click", async () => {
+          const newName = nameInput.value.trim();
+          if (!newName) return (nameStatus.textContent = "Please enter a name.");
+          
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Saving...";
+          
+          try {
+            const csrfRes = await fetch("/api/auth/csrf");
+            const csrfData = await csrfRes.json();
+            
+            const response = await fetch("/api/auth/update-profile", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json", 
+                "X-CSRF-Token": csrfData.csrfToken 
+              },
+              body: JSON.stringify({ name: newName })
+            });
+            
+            if (response.ok) {
+              nameStatus.textContent = "✅ Name saved successfully!";
+              welcome.textContent = `Welcome, ${newName}!`;
+              setTimeout(() => nameStatus.textContent = "", 3000);
+            } else {
+              nameStatus.style.color = "var(--danger)";
+              nameStatus.textContent = "Failed to save name.";
+            }
+          } catch (e) {
+            nameStatus.style.color = "var(--danger)";
+            nameStatus.textContent = "Error saving name.";
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save";
+          }
+        });
 
         // ---- Load enrolled courses ----
         const grid = document.getElementById("enrolled-grid");
@@ -180,11 +229,6 @@
         errEl.textContent = err.message;
         errEl.style.display = "block";
       }
-
-      logoutBtn.addEventListener("click", async () => {
-        try { await auth.logout(); } catch {}
-        window.location.href = "/";
-      });
     })();
   </script>
 </body>

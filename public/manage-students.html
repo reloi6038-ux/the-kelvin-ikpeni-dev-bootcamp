@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Students — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo"><span class="nav-logo-mark">K</span><span>Admin</span></a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-exams">Exams</a></li>
+      </ul>
+      <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container"><h1>Manage Students</h1></div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div id="students-error" class="state-message error" style="display:none;"></div>
+        <div class="form-group" style="max-width: 400px; margin-bottom: var(--sp-4);">
+          <input id="search" type="text" placeholder="Search by name or email...">
+        </div>
+        <div id="students-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    (async function () {
+      const user = await admin.guard();
+      if (!user) return;
+      const listEl = document.getElementById("students-list");
+      const errEl = document.getElementById("students-error");
+      const search = document.getElementById("search");
+
+      async function load() {
+        try {
+          const url = `/api/admin/students?search=${encodeURIComponent(search.value)}`;
+          const res = await admin.adminRequest(url);
+          listEl.innerHTML = `
+            <p style="color:var(--text-muted); margin-bottom: var(--sp-3);">
+              ${res.students.length} of ${res.pagination.total} users
+            </p>
+            ${res.students
+              .map(
+                (s) => `
+                <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap;">
+                  <div>
+                    <strong>${escapeHtml(s.name)}</strong> — ${escapeHtml(s.email)}
+                    <span style="padding: 2px 8px; border-radius: 999px; margin-left: var(--sp-2); font-size:0.8rem; ${s.role === "admin" ? "background: rgba(74,158,255,0.15); color: var(--primary);" : "background: rgba(154,164,191,0.15); color: var(--text-muted);"}">
+                      ${s.role}
+                    </span>
+                    <p style="margin: var(--sp-1) 0 0; color: var(--text-dim); font-size:0.85rem;">
+                      Joined ${new Date(s.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button class="btn btn-secondary role-toggle" data-id="${s._id}" data-role="${s.role}">
+                    ${s.role === "admin" ? "Demote to student" : "Promote to admin"}
+                  </button>
+                </div>`
+              )
+              .join("")}
+          `;
+          listEl.querySelectorAll(".role-toggle").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const newRole = btn.dataset.role === "admin" ? "student" : "admin";
+              if (!confirm(`Change role to ${newRole}?`)) return;
+              try {
+                await admin.adminRequest(`/api/admin/students/${btn.dataset.id}/role`, {
+                  method: "PATCH",
+                  body: { role: newRole },
+                });
+                load();
+              } catch (err) { alert(err.message); }
+            });
+          });
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        }
+      }
+
+      let debounce;
+      search.addEventListener("input", () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(load, 300);
+      });
+      load();
+    })();
+  </script>
+</body>
+</html>

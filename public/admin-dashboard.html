@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — The Kelvin Ikpeni Dev Bootcamp</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="nav-logo-mark">K</span>
+        <span>The Kelvin Ikpeni Dev Bootcamp · Admin</span>
+      </a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-exams">Exams</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/" class="btn btn-secondary">← Site</a>
+        <button class="btn btn-secondary" id="logout-btn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Admin Overview</h1>
+        <p>Everything about the platform at a glance.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="admin-error" class="state-message error" style="display:none;"></div>
+        <div id="stats-grid" class="courses-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

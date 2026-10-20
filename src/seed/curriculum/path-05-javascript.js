@@ -1,4 +1,4 @@
-// Path 5: JavaScript
+// Path 5: JavaScript from Zero
 module.exports = {
   course: {
     title: "JavaScript from Zero",
@@ -6,7 +6,7 @@ module.exports = {
     description:
       "Master the language that powers the web — from variables to async/await.",
     level: "beginner",
-    estimatedHours: 24,
+    estimatedHours: 26,
     icon: "javascript",
     order: 5,
     isPublished: true,
@@ -21,84 +21,72 @@ module.exports = {
           title: "Variables and Data Types",
           slug: "variables-data-types",
           order: 1,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# Variables and Data Types
 
-Variables store values. JavaScript has three keywords:
+Variables are containers for storing data.
 
-## \`const\` (preferred)
-\`\`\`js
+## Modern Declarations
+1. \`const\`: Constant. Cannot be reassigned. **Use this by default.**
+2. \`let\`: Can be reassigned. Use only when needed.
+
+\`\`\`javascript
 const name = "Alice";
-// name = "Bob"; // ❌ error — cannot reassign
+let score = 100;
+score = 150; // ✅ allowed
+// name = "Bob"; // ❌ ERROR
 \`\`\`
 
-## \`let\` (when reassignment is needed)
-\`\`\`js
-let count = 0;
-count = count + 1; // ✅
-\`\`\`
-
-## \`var\` (avoid)
-Function-scoped, hoisted. Use \`const\` and \`let\` instead.
-
-## Data types
+## Data Types
 - **String**: \`"hello"\`, \`'world'\`
 - **Number**: \`42\`, \`3.14\`
 - **Boolean**: \`true\`, \`false\`
-- **Null**: \`null\` (intentionally empty)
-- **Undefined**: \`undefined\` (not yet assigned)
-- **Object**: \`{ name: "Alice", age: 30 }\`
+- **Null**: Intentional absence
+- **Undefined**: Not yet assigned
+- **Object**: \`{ name: "Alice" }\`
 - **Array**: \`[1, 2, 3]\`
 
-## Rule
-**Always use \`const\` unless you need to reassign.** This prevents accidental bugs.`,
+## Checking Types
+\`\`\`javascript
+typeof "hello"; // "string"
+typeof 42;      // "number"
+typeof [];      // "object"
+\`\`\``,
         },
         {
-          title: "Functions",
+          title: "Functions and Arrow Functions",
           slug: "functions",
           order: 2,
-          estimatedMinutes: 25,
-          content: `# Functions
+          estimatedMinutes: 30,
+          content: `# Functions and Arrow Functions
 
 Functions are reusable blocks of code.
 
-## Regular function
-\`\`\`js
+## Standard Functions
+\`\`\`javascript
 function add(a, b) {
   return a + b;
 }
 \`\`\`
 
-## Arrow function (modern, preferred)
-\`\`\`js
+## Arrow Functions (ES6)
+\`\`\`javascript
 const add = (a, b) => a + b;
 \`\`\`
 
-## Calling
-\`\`\`js
-add(2, 3); // 5
-\`\`\`
+## Why Arrow Functions?
+Besides being shorter, arrow functions handle the \`this\` keyword differently.
 
-## Async functions
-Any function that does something that takes time (network, file, database) is **async**:
-
-\`\`\`js
+## Async Functions
+\`\`\`javascript
 async function getUser(id) {
   const res = await fetch(\`/api/users/\${id}\`);
   return await res.json();
 }
 \`\`\`
 
-- \`async\` — marks the function as returning a Promise
-- \`await\` — pauses until the Promise resolves
-
-## Every route in this bootcamp is async
-\`\`\`js
-router.get("/", async (req, res) => {
-  const courses = await Course.find();
-  res.json(courses);
-});
-\`\`\``,
+- \`async\`: marks the function as returning a Promise.
+- \`await\`: pauses until the Promise resolves.`,
         },
       ],
     },
@@ -108,85 +96,83 @@ router.get("/", async (req, res) => {
       order: 2,
       lessons: [
         {
-          title: "Selecting and Modifying Elements",
+          title: "Selecting and Changing Elements",
           slug: "dom-selection",
           order: 1,
-          estimatedMinutes: 20,
-          content: `# Selecting and Modifying Elements
+          estimatedMinutes: 25,
+          content: `# Selecting and Changing Elements
 
-The **DOM** (Document Object Model) is a JavaScript representation of the page.
+The DOM (Document Object Model) is JavaScript's representation of the page.
 
-## Selecting elements
-\`\`\`js
-// By CSS selector (any selector works)
+## Selecting Elements
+\`\`\`javascript
 const header = document.querySelector("h1");
 const allLinks = document.querySelectorAll(".nav a");
 \`\`\`
 
-## Modifying elements
-\`\`\`js
+## Modifying Elements
+\`\`\`javascript
 const title = document.querySelector("#title");
-title.textContent = "New heading";        // safe — no HTML parsing
-title.innerHTML = "<em>Italic</em>";      // ⚠️ XSS risk — avoid with user data
+title.textContent = "New heading";   // safe
+title.innerHTML = "<em>Italic</em>"; // ⚠️ XSS risk
 title.classList.add("highlight");
-title.style.color = "red";                 // inline style
+title.style.color = "red";
 \`\`\`
 
-## Security note
-**Never use \`innerHTML\` with user-controlled data.** Use \`textContent\` or \`escapeHtml()\` (as this bootcamp does).`,
+## Security Note
+**Never use \`innerHTML\` with user-controlled data.** Use \`textContent\` or an escape helper.`,
         },
         {
-          title: "Events",
-          slug: "events",
+          title: "Handling Events",
+          slug: "handling-events",
           order: 2,
-          estimatedMinutes: 20,
-          content: `# Events
+          estimatedMinutes: 30,
+          content: `# Handling Events
 
-Events respond to user actions: clicks, typing, submitting forms, scrolling.
+Events respond to user actions.
 
-## Adding an event listener
-\`\`\`js
+## The Event Listener
+\`\`\`javascript
 const button = document.querySelector("#save-btn");
 button.addEventListener("click", (event) => {
   console.log("Button clicked!");
 });
 \`\`\`
 
-## Common events
-- \`click\` — mouse click
-- \`submit\` — form submission
-- \`input\` — while typing in a field
-- \`change\` — value change on a form control
-- \`keydown\` / \`keyup\` — keyboard
+## Common Events
+- \`click\`: mouse click
+- \`submit\`: form submission
+- \`input\`: while typing
+- \`keydown\` / \`keyup\`: keyboard
 
-## Preventing default behavior
-\`\`\`js
+## Preventing Default Behavior
+\`\`\`javascript
 form.addEventListener("submit", (e) => {
-  e.preventDefault(); // stop the browser's default form submission
-  // do something else
+  e.preventDefault(); // stop page reload
+  // handle manually
 });
 \`\`\`
 
-Without \`preventDefault()\`, submitting a form triggers a **full page reload** — which you almost never want in a modern app.`,
+Without \`preventDefault()\`, form submissions reload the page.`,
         },
         {
-          title: "Fetch API",
+          title: "Fetch API and Async",
           slug: "fetch-api",
           order: 3,
-          estimatedMinutes: 25,
-          content: `# Fetch API
+          estimatedMinutes: 30,
+          content: `# Fetch API and Async
 
 \`fetch()\` makes HTTP requests from the browser.
 
 ## Basic GET
-\`\`\`js
+\`\`\`javascript
 const res = await fetch("/api/courses");
 const data = await res.json();
 console.log(data.courses);
 \`\`\`
 
-## POST with JSON body
-\`\`\`js
+## POST with JSON
+\`\`\`javascript
 const res = await fetch("/api/enrollments", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -195,8 +181,8 @@ const res = await fetch("/api/enrollments", {
 const data = await res.json();
 \`\`\`
 
-## Handling errors
-\`\`\`js
+## Handling Errors
+\`\`\`javascript
 try {
   const res = await fetch("/api/courses");
   if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
@@ -206,7 +192,7 @@ try {
 }
 \`\`\`
 
-**\`fetch()\` does NOT throw on 4xx/5xx** — you must check \`res.ok\` yourself. That's why this bootcamp uses the \`apiRequest()\` helper, which handles this for you.`,
+**\`fetch()\` does NOT throw on 4xx/5xx** — you must check \`res.ok\`.`,
         },
       ],
     },

@@ -66,19 +66,32 @@
       const errEl = document.getElementById("login-error");
       const submitBtn = document.getElementById("login-submit");
 
+      // Pre-fetch CSRF token to speed up login
       try { await fetch("/api/auth/csrf"); } catch {}
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errEl.textContent = "";
+        
+        // Use FormData to guarantee we capture autofilled values
+        const data = new FormData(form);
+        const email = (data.get("email") || "").toString().trim();
+        const password = (data.get("password") || "").toString();
+
+        if (!email) {
+          errEl.textContent = "Please enter your email address.";
+          return;
+        }
+        if (!password) {
+          errEl.textContent = "Please enter your password.";
+          return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.textContent = "Logging in...";
 
         try {
-          await auth.login({
-            email: form.email.value.trim(),
-            password: form.password.value,
-          });
+          await auth.login({ email, password });
           window.location.href = "/dashboard.html";
         } catch (err) {
           errEl.textContent = err.message || "Login failed.";

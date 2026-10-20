@@ -6,7 +6,7 @@ module.exports = {
     description:
       "Set up a professional development workspace with VS Code, the terminal, npm, and package.json.",
     level: "beginner",
-    estimatedHours: 6,
+    estimatedHours: 8,
     icon: "vscode",
     order: 2,
     isPublished: true,
@@ -21,7 +21,7 @@ module.exports = {
           title: "Installing VS Code",
           slug: "installing-vscode",
           order: 1,
-          estimatedMinutes: 10,
+          estimatedMinutes: 15,
           content: `# Installing VS Code
 
 VS Code is a free, powerful editor used by millions of developers.
@@ -44,7 +44,7 @@ You should see a version number. If not, restart your computer.`,
           title: "Essential Extensions",
           slug: "essential-extensions",
           order: 2,
-          estimatedMinutes: 15,
+          estimatedMinutes: 20,
           content: `# Essential Extensions
 
 Extensions make VS Code exponentially more powerful. Install these four:
@@ -61,6 +61,29 @@ Extensions make VS Code exponentially more powerful. Install these four:
 2. Click the Extensions icon (left sidebar)
 3. Search each name
 4. Click **Install**`,
+        },
+        {
+          title: "Essential Shortcuts",
+          slug: "essential-shortcuts",
+          order: 3,
+          estimatedMinutes: 15,
+          content: `# Essential Shortcuts
+
+Learning shortcuts will double your coding speed.
+
+## The Top 10
+| Shortcut (Windows) | Action |
+|--------------------|--------|
+| \`Ctrl + P\` | Quick-open a file |
+| \`Ctrl + Shift + P\` | Command palette |
+| \`Ctrl + \`\` | Toggle terminal |
+| \`Ctrl + /\` | Toggle line comment |
+| \`Alt + ↑ / ↓\` | Move line up/down |
+| \`Shift + Alt + ↓\` | Duplicate line |
+| \`Ctrl + D\` | Select next occurrence |
+| \`F2\` | Rename symbol across files |
+| \`F12\` | Jump to definition |
+| \`Ctrl + Shift + F\` | Search across project |`,
         },
       ],
     },
@@ -79,7 +102,6 @@ Extensions make VS Code exponentially more powerful. Install these four:
 Every Node.js project has a \`package.json\` — the "ID card" of the project.
 
 ## Anatomy
-
 \`\`\`json
 {
   "name": "my-project",
@@ -100,14 +122,40 @@ Every Node.js project has a \`package.json\` — the "ID card" of the project.
 - **main** — the entry file Node runs first
 - **scripts** — short commands (\`npm run dev\` executes \`nodemon server.js\`)
 - **dependencies** — packages your app needs in production
-- **devDependencies** — packages only for development (like nodemon)
+- **devDependencies** — packages only for development (like nodemon)`,
+        },
+        {
+          title: "Installing and Using Packages",
+          slug: "installing-packages",
+          order: 2,
+          estimatedMinutes: 20,
+          content: `# Installing and Using Packages
 
-## Install a package
-\`\`\`
+npm is the world's largest software registry. It hosts over a million packages.
+
+## Installing
+\`\`\`bash
 npm install express
 \`\`\`
 
-This adds \`express\` to \`dependencies\` and downloads it into \`node_modules/\`.`,
+This does three things:
+1. Adds \`express\` to \`dependencies\` in \`package.json\`.
+2. Downloads the package into \`node_modules/\`.
+3. Records the exact version in \`package-lock.json\`.
+
+## Dev dependencies
+If a package is only needed for development (like nodemon, testing libraries), install with \`--save-dev\`:
+\`\`\`bash
+npm install --save-dev nodemon
+\`\`\`
+
+## Removing
+\`\`\`bash
+npm uninstall express
+\`\`\`
+
+## Never commit node_modules
+Add \`node_modules/\` to \`.gitignore\`. Anyone who clones the repo runs \`npm install\` to re-create it.`,
         },
       ],
     },

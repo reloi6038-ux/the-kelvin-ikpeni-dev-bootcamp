@@ -1,8 +1,10 @@
+// Path 16: Final Capstone Project
 module.exports = {
   course: {
     title: "Final Capstone Project",
     slug: "capstone",
-    description: "Plan, build, and deploy a complete full-stack application from scratch.",
+    description:
+      "Plan, build, and deploy a complete full-stack application from scratch.",
     level: "advanced",
     estimatedHours: 40,
     icon: "capstone",
@@ -24,17 +26,17 @@ module.exports = {
 
 Before writing code, plan. This saves days of rework.
 
-## Choose your project
+## Choose Your Project
 Ideas:
 - A blog with accounts, posts, comments, and search
 - A task management app with teams and assignments
-- A school management system with students, courses, and grades
-- An e-commerce store with cart, checkout, and orders
-- A learning management system (like this bootcamp!)
+- A school management system
+- An e-commerce store
+- A learning management system
 
-## What to specify
+## What to Specify
 
-### 1. Data model
+### 1. Data Model
 Sketch your collections:
 \`\`\`
 users (email, passwordHash, name, role)
@@ -42,7 +44,7 @@ posts (authorId, title, content, createdAt)
 comments (postId, userId, content, createdAt)
 \`\`\`
 
-### 2. Routes / pages
+### 2. Routes / Pages
 \`\`\`
 /                   → homepage
 /posts              → list posts
@@ -51,17 +53,14 @@ comments (postId, userId, content, createdAt)
 /admin              → admin panel
 \`\`\`
 
-### 3. Features checklist
+### 3. Features Checklist
 - [ ] User registration and login
 - [ ] Create, edit, delete posts
 - [ ] Comments on posts
 - [ ] Search by keyword
 - [ ] Author dashboard
 - [ ] Admin panel
-- [ ] Deployed to Render
-
-## Estimate in phases
-Break the work into 3–4 phases you can ship independently. Each phase should be deployable on its own.`,
+- [ ] Deployed to Render`,
         },
         {
           title: "Building and Deploying",
@@ -70,7 +69,7 @@ Break the work into 3–4 phases you can ship independently. Each phase should b
           estimatedMinutes: 40,
           content: `# Building and Deploying
 
-## The build checklist
+## The Build Checklist
 
 ### Backend
 - [ ] Models defined with validation and indexes
@@ -86,7 +85,7 @@ Break the work into 3–4 phases you can ship independently. Each phase should b
 - [ ] Fetch helpers with loading/error states
 - [ ] Forms validate on the client AND server
 - [ ] Mobile responsive
-- [ ] Accessible (focus states, ARIA labels, contrast)
+- [ ] Accessible
 
 ### Deployment
 - [ ] \`.env\` excluded from GitHub
@@ -96,7 +95,7 @@ Break the work into 3–4 phases you can ship independently. Each phase should b
 - [ ] Health check works
 - [ ] Full user flow tested on live URL
 
-## The final deliverable
+## The Final Deliverable
 A **live URL** anyone can visit, a **GitHub repo** with clean history, and a **README** that explains the app in 60 seconds.
 
 That's a portfolio-quality project. Ship it.`,

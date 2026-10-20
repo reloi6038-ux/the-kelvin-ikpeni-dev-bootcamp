@@ -1,10 +1,3 @@
-// ============================================================
-// src/routes/enrollments.js
-// POST   /api/enrollments            → enroll in a course
-// GET    /api/enrollments            → my enrollments
-// DELETE /api/enrollments/:courseId  → drop a course
-// ============================================================
-
 const express = require("express");
 const router = express.Router();
 
@@ -20,7 +13,9 @@ router.post(
   "/",
   requireAuth,
   asyncHandler(async (req, res, next) => {
-    const { courseId, slug } = req.body || {};
+    // Look in body, then query, just to be safe
+    const courseId = req.body?.courseId || req.query?.courseId;
+    const slug = req.body?.slug || req.query?.slug;
 
     if (!courseId && !slug) {
       const err = new Error("courseId or slug is required");
@@ -28,11 +23,14 @@ router.post(
       return next(err);
     }
 
-    const course = courseId
-      ? await Course.findById(courseId)
-      : await Course.findOne({ slug });
+    let course;
+    if (courseId) {
+      course = await Course.findById(courseId);
+    } else if (slug) {
+      course = await Course.findOne({ slug: slug });
+    }
 
-    if (!course || !course.isPublished) {
+    if (!course) {
       const err = new Error("Course not found");
       err.statusCode = 404;
       return next(err);

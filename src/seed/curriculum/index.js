@@ -1,7 +1,6 @@
 // ============================================================
 // src/seed/curriculum/index.js
 // Exports all 16 learning paths.
-// To add a new path, require it and push it to the array.
 // ============================================================
 
 const paths = [

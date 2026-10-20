@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Exams — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo"><span class="nav-logo-mark">K</span><span>Admin</span></a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-exams">Exams</a></li>
+      </ul>
+      <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header"><div class="container"><h1>Exam Attempts & Submissions</h1></div></section>
+    <section class="section">
+      <div class="container">
+        <div id="exams-error" class="state-message error" style="display:none;"></div>
+        <h2>Recent Exam Attempts</h2>
+        <div id="attempts-list" style="margin-bottom: var(--sp-8);"></div>
+        <h2>Recent Code Submissions</h2>
+        <div id="subs-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    (async function () {
+      const user = await admin.guard();
+      if (!user) return;
+
+      try {
+        const [att, subs] = await Promise.all([
+          admin.adminRequest("/api/admin/attempts"),
+          admin.adminRequest("/api/admin/submissions"),
+        ]);
+
+        document.getElementById("attempts-list").innerHTML =
+          att.attempts.length === 0
+            ? `<div class="state-message">No exam attempts yet.</div>`
+            : att.attempts
+                .map(
+                  (a) => `
+                  <div class="course-card" style="margin-bottom: var(--sp-2); padding: var(--sp-3);">
+                    <strong>${escapeHtml(a.studentId?.name || "Unknown")}</strong> —
+                    ${escapeHtml(a.quizId?.title || "Quiz")} — 
+                    Attempt #${a.attemptNumber} — 
+                    <span style="color:${a.passed ? "var(--success)" : "var(--danger)"}; font-weight:600;">
+                      ${a.score}% ${a.passed ? "✓" : "✗"}
+                    </span>
+                    <p style="margin:0; color:var(--text-dim); font-size:0.8rem;">
+                      ${a.submittedAt ? new Date(a.submittedAt).toLocaleString() : ""}
+                    </p>
+                  </div>`
+                )
+                .join("");
+
+        document.getElementById("subs-list").innerHTML =
+          subs.submissions.length === 0
+            ? `<div class="state-message">No code submissions yet.</div>`
+            : subs.submissions
+                .map(
+                  (s) => `
+                  <div class="course-card" style="margin-bottom: var(--sp-2); padding: var(--sp-3);">
+                    <strong>${escapeHtml(s.studentId?.name || "Unknown")}</strong> —
+                    ${escapeHtml(s.lessonId?.title || "Lesson")} — 
+                    <span style="color:${s.passed ? "var(--success)" : "var(--danger)"};">
+                      ${s.passed ? "✓ Passed" : "✗ Failed"}
+                    </span>
+                    <p style="margin:0; color:var(--text-dim); font-size:0.8rem;">
+                      ${new Date(s.submittedAt).toLocaleString()}
+                    </p>
+                  </div>`
+                )
+                .join("");
+      } catch (err) {
+        const e = document.getElementById("exams-error");
+        e.textContent = err.message;
+        e.style.display = "block";
+      }
+    })();
+  </script>
+</body>
+</html>

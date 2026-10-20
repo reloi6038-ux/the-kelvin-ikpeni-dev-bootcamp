@@ -1,10 +1,12 @@
+// Path 8: Express.js & REST APIs
 module.exports = {
   course: {
     title: "Express.js & REST APIs",
     slug: "express-apis",
-    description: "Routes, middleware, controllers, and building professional REST APIs.",
+    description:
+      "Routes, middleware, controllers, and building professional REST APIs.",
     level: "intermediate",
-    estimatedHours: 14,
+    estimatedHours: 16,
     icon: "express",
     order: 8,
     isPublished: true,
@@ -24,8 +26,8 @@ module.exports = {
 
 Express maps URLs to **handler functions**.
 
-## Minimal server
-\`\`\`js
+## Minimal Server
+\`\`\`javascript
 const express = require("express");
 const app = express();
 
@@ -36,30 +38,19 @@ app.get("/", (req, res) => {
 app.listen(3000);
 \`\`\`
 
-## The handler signature
-\`\`\`js
+## The Handler Signature
+\`\`\`javascript
 app.get("/path", (req, res) => {
-  // req — incoming request (params, body, headers, session)
-  // res — outgoing response (json, send, status, sendFile)
+  // req — incoming request
+  // res — outgoing response
 });
 \`\`\`
 
-## Common response methods
+## Common Response Methods
 - \`res.json({ success: true })\` — send JSON
 - \`res.send("text")\` — send plain text
 - \`res.status(404)\` — set status code
-- \`res.sendFile(path)\` — send an HTML file
-- \`res.redirect("/login")\` — redirect
-
-## The pattern
-\`\`\`js
-router.get("/courses", async (req, res) => {
-  const courses = await Course.find();
-  res.json({ success: true, courses });
-});
-\`\`\`
-
-This is exactly the pattern used throughout this bootcamp.`,
+- \`res.redirect("/login")\` — redirect`,
         },
         {
           title: "Middleware & Error Handling",
@@ -68,27 +59,26 @@ This is exactly the pattern used throughout this bootcamp.`,
           estimatedMinutes: 25,
           content: `# Middleware & Error Handling
 
-**Middleware** is code that runs on every request (or every request to a specific path).
+**Middleware** is code that runs on every request (or specific paths).
 
-## Basic middleware
-\`\`\`js
+## Basic Middleware
+\`\`\`javascript
 app.use((req, res, next) => {
   console.log(\`\${req.method} \${req.url}\`);
-  next(); // pass to the next middleware
+  next();
 });
 \`\`\`
 
-Without \`next()\`, the request **hangs** — nothing responds.
+Without \`next()\`, the request hangs.
 
-## Common middleware
-- **Helmet** — sets security headers
-- **Morgan** — logs requests
-- **express.json()** — parses JSON bodies
-- **express-session** — session management
-- **Custom** — rate limiting, auth, CSRF
+## Common Middleware
+- **Helmet** — security headers
+- **Morgan** — logging
+- **express.json()** — parse JSON bodies
+- **express-session** — sessions
 
-## The error handler (4 parameters)
-\`\`\`js
+## Error Handler (4 params)
+\`\`\`javascript
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({
     success: false,
@@ -97,7 +87,7 @@ app.use((err, req, res, next) => {
 });
 \`\`\`
 
-Express identifies error handlers by **arity** — exactly 4 parameters. Anywhere in your code, \`next(err)\` jumps directly here.`,
+Express identifies error handlers by **arity** — exactly 4 parameters.`,
         },
       ],
     },

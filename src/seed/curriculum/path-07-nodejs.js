@@ -1,10 +1,12 @@
+// Path 7: Node.js
 module.exports = {
   course: {
     title: "Node.js",
     slug: "nodejs",
-    description: "Server-side JavaScript, modules, and asynchronous programming.",
+    description:
+      "Server-side JavaScript, modules, and asynchronous programming.",
     level: "intermediate",
-    estimatedHours: 10,
+    estimatedHours: 12,
     icon: "nodejs",
     order: 7,
     isPublished: true,
@@ -24,22 +26,20 @@ module.exports = {
 
 Node.js is a **JavaScript runtime** that runs on the server.
 
-## Why it matters
-You already know JavaScript from the browser. Node lets you use the **same language** to write backend code. No context switching.
+## Why It Matters
+You already know JavaScript from the browser. Node lets you use the **same language** to write backend code.
 
-## How it works
-- Node is built on **V8** (Chrome's JavaScript engine)
-- It adds APIs for files, networks, and processes that browsers don't have
-- Your \`server.js\` is Node.js code running on your machine
+## How It Works
+- Node is built on **V8** (Chrome's JavaScript engine).
+- It adds APIs for files, networks, and processes.
+- Your \`server.js\` is Node.js code running on your machine.
 
-## The module system
-\`\`\`js
+## The Module System
+\`\`\`javascript
 const fs = require("fs");             // built-in
 const express = require("express");   // npm-installed
-const { createApp } = require("./src/app"); // local file
-\`\`\`
-
-\`require()\` is how every Node file loads dependencies.`,
+const { createApp } = require("./src/app"); // local
+\`\`\``,
         },
         {
           title: "Async, Await & Promises",
@@ -48,19 +48,18 @@ const { createApp } = require("./src/app"); // local file
           estimatedMinutes: 25,
           content: `# Async, Await & Promises
 
-Node.js is **asynchronous** — I/O operations don't block other requests.
+Node.js is **asynchronous** — I/O doesn't block other requests.
 
 ## Promises
-A Promise represents a future value:
-\`\`\`js
+\`\`\`javascript
 fetch("/api/data")
   .then((res) => res.json())
   .then((data) => console.log(data))
   .catch((err) => console.error(err));
 \`\`\`
 
-## async/await (modern, preferred)
-\`\`\`js
+## async/await
+\`\`\`javascript
 async function loadData() {
   try {
     const res = await fetch("/api/data");
@@ -72,8 +71,8 @@ async function loadData() {
 }
 \`\`\`
 
-## Why async matters at scale
-Without async, one slow database query would block every other request. With async, Node handles thousands of concurrent requests on modest hardware — this is why Node powers production APIs at Netflix, PayPal, and Walmart.`,
+## Why Async Matters
+Without async, one slow database query would block every other request. With async, Node handles thousands of concurrent requests on modest hardware.`,
         },
       ],
     },

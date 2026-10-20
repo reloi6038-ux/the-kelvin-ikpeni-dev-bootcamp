@@ -1,10 +1,12 @@
+// Path 11: Web Security
 module.exports = {
   course: {
     title: "Web Security",
     slug: "web-security",
-    description: "Password hashing, sessions, CSRF, XSS, injection attacks, and production-grade defenses.",
+    description:
+      "Password hashing, sessions, CSRF, XSS, injection attacks, and production-grade defenses.",
     level: "advanced",
-    estimatedHours: 14,
+    estimatedHours: 20,
     icon: "security",
     order: 11,
     isPublished: true,
@@ -16,51 +18,33 @@ module.exports = {
       order: 1,
       lessons: [
         {
-          title: "Password Hashing with bcrypt",
+          title: "Password Hashing",
           slug: "password-hashing",
           order: 1,
           estimatedMinutes: 25,
-          content: `# Password Hashing with bcrypt
+          content: `# Password Hashing
 
-**Never store passwords. Store hashes.**
+**Never store passwords in plain text.**
 
-## What a hash is
-A one-way function. Given \`"password123"\`, bcrypt returns:
-\`\`\`
-$2a$12$Kj8Xf2P.vNz1YhL9pWq3u.xxxxxxxxxxxxxxxxxxxxxxxxx
-\`\`\`
+## What Is Hashing?
+A one-way mathematical function. You can turn a password into a hash, but not back.
 
-You **cannot** reverse it — but you can verify it: \`bcrypt.compare()\` re-hashes the input and compares.
+## Salting
+Two users with the same password get different hashes. A **salt** is a random string added before hashing.
 
-## The two operations
-\`\`\`js
+## Using Bcrypt
+\`\`\`javascript
 const bcrypt = require("bcryptjs");
 
-// Hash (when registering)
+// Hashing (registration)
 const hash = await bcrypt.hash(password, 12);
-// → store this in the database
 
-// Verify (when logging in)
-const ok = await bcrypt.compare(password, user.passwordHash);
-// → true or false
+// Comparing (login)
+const ok = await bcrypt.compare(password, hash);
 \`\`\`
 
-## Why \`12\` rounds?
-Each round doubles the computation time. 12 rounds ≈ 250ms on modern hardware.
-
-- Too low → easy to brute-force
-- Too high → slow login, slow server
-
-12 is the industry standard in 2026.
-
-## What NOT to do
-\`\`\`js
-// ❌ Never store plaintext
-User.create({ password: req.body.password });
-
-// ❌ Never use MD5 or SHA1 for passwords
-const hash = crypto.createHash("md5").update(password).digest("hex");
-\`\`\``,
+## Why 12 Rounds?
+Each round doubles the computation time. 12 rounds ≈ 250ms — slow enough to deter hackers, fast enough for users.`,
         },
         {
           title: "Sessions & Secure Cookies",
@@ -69,68 +53,88 @@ const hash = crypto.createHash("md5").update(password).digest("hex");
           estimatedMinutes: 25,
           content: `# Sessions & Secure Cookies
 
-## How sessions work
-1. User logs in with email/password
-2. Server verifies credentials
-3. Server creates a **session** with an ID
-4. Server sends the session ID as a **cookie**
-5. On every subsequent request, the browser sends the cookie
-6. Server looks up the session and knows who you are
+## How Sessions Work
+1. User logs in.
+2. Server verifies credentials.
+3. Server creates a **session** with an ID.
+4. Sends the session ID as a **cookie**.
+5. On every request, the browser sends the cookie.
+6. Server looks up the session.
 
-## The cookie settings that matter
-
-\`\`\`js
+## Critical Cookie Settings
+\`\`\`javascript
 cookie: {
-  httpOnly: true,    // JavaScript cannot read it — blocks XSS theft
-  secure: true,      // Only sent over HTTPS
-  sameSite: "lax",   // Blocks cross-site POSTs (CSRF)
-  maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+  httpOnly: true,   // blocks XSS
+  secure: true,     // HTTPS only
+  sameSite: "lax",  // blocks CSRF
+  maxAge: 14 * 24 * 60 * 60 * 1000,
 }
 \`\`\`
 
-## What each setting prevents
-
-| Setting | Prevents |
-|---------|----------|
-| \`httpOnly\` | XSS attackers reading the cookie |
-| \`secure\` | Cookie sent over unencrypted HTTP |
-| \`sameSite\` | Cross-site request forgery |
-
-## Session storage
-By default, sessions live in memory. **That's bad** — a server restart logs everyone out, and multiple servers can't share sessions.
-
-Use **\`connect-mongo\`** to store sessions in MongoDB. Any server can verify any user.`,
+## Session Storage
+By default, sessions live in memory. A server restart logs everyone out. Use **\`connect-mongo\`** to store them in MongoDB.`,
         },
         {
           title: "CSRF Protection",
           slug: "csrf-protection",
           order: 3,
-          estimatedMinutes: 20,
+          estimatedMinutes: 25,
           content: `# CSRF Protection
 
 **Cross-Site Request Forgery** tricks a logged-in user's browser into making a request they didn't intend.
 
-## The attack
-1. You log into \`bank.com\`
-2. You visit \`evil.com\`
-3. \`evil.com\` auto-submits a form to \`bank.com/transfer\`
-4. Your browser sends the request **with your session cookie**
-5. The bank thinks **you** initiated the transfer
+## The Attack
+1. Log into \`bank.com\`.
+2. Visit \`evil.com\`.
+3. \`evil.com\` submits a form to \`bank.com/transfer\`.
+4. Browser sends the request **with your bank.com cookies**.
+5. Bank thinks **you** initiated it.
 
-## The defense: CSRF tokens
-1. Server generates a random token, stores it in the session
-2. Server sends the token to the client
-3. Client sends the token in the \`X-CSRF-Token\` header on every state-changing request
-4. Server verifies the token matches the session
+## The Defense: CSRF Tokens
+1. Server generates a random token, stores it in the session.
+2. Client receives the token.
+3. Client sends the token in \`X-CSRF-Token\` header.
+4. Server verifies.
 
-An attacker on \`evil.com\` cannot read the token — same-origin policy blocks it.
+An attacker on \`evil.com\` cannot read the token. **Request blocked.**
 
-## What's protected
-- ✅ POST, PUT, PATCH, DELETE
-- ❌ GET, HEAD, OPTIONS (safe methods — they don't change state)
+**Rule:** Protect all POST/PUT/PATCH/DELETE with CSRF.`,
+        },
+        {
+          title: "XSS Prevention",
+          slug: "xss-prevention",
+          order: 4,
+          estimatedMinutes: 25,
+          content: `# XSS Prevention
 
-## In this bootcamp
-Every auth, enrollment, and progress request requires the token. \`api.js\` and \`auth.js\` handle it automatically.`,
+**Cross-Site Scripting** — injecting malicious JS into your page.
+
+## The Attack
+If you inject user input directly into HTML:
+\`\`\`javascript
+title.innerHTML = userInput; // ⚠️ dangerous
+\`\`\`
+
+A user submits \`<script>alert('hacked')</script>\`. It executes.
+
+## The Defense
+**Always escape user content.**
+\`\`\`javascript
+title.textContent = userInput; // ✅ safe
+\`\`\`
+
+Or use an escape function:
+\`\`\`javascript
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+\`\`\`
+
+## Rule
+**Never use \`innerHTML\` with untrusted data.**`,
         },
       ],
     },

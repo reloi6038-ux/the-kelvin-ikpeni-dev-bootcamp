@@ -23,6 +23,7 @@ const exerciseRoutes = require("./routes/exercises");
 const quizRoutes = require("./routes/quizzes");
 const examRoutes = require("./routes/exams");
 const certificateRoutes = require("./routes/certificates");
+const adminRoutes = require("./routes/admin");
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -46,6 +47,31 @@ function createApp() {
   // ---- Sessions ----
   app.use(buildSessionMiddleware());
 
+  // ---- AUTO-LOGIN FOR GUESTS (Bypasses Auth) ----
+  app.use(async (req, res, next) => {
+    if (!req.session.userId) {
+      try {
+        const User = require("./models/User");
+        // Find or create a default guest account
+        let guest = await User.findOne({ email: "guest@kelvinbootcamp.com" });
+        if (!guest) {
+          guest = await User.create({
+            name: "Guest Student",
+            email: "guest@kelvinbootcamp.com",
+            passwordHash: "no-password-required",
+            role: "student",
+          });
+        }
+        // Assign the guest session
+        req.session.userId = guest._id.toString();
+        req.session.role = guest.role;
+      } catch (err) {
+        console.error("Auto-login error:", err);
+      }
+    }
+    next();
+  });
+
   // ---- Global API rate limit ----
   app.use("/api", apiLimiter);
 
@@ -66,6 +92,7 @@ function createApp() {
   app.use("/api/quizzes", quizRoutes);
   app.use("/api/exams", examRoutes);
   app.use("/api/certificates", certificateRoutes);
+  app.use("/api/admin", adminRoutes);
 
   // ---- HTML page routes (clean URLs) ----
   const sendPage = (file) => (req, res) =>
@@ -82,9 +109,14 @@ function createApp() {
   app.get("/verify-certificate", sendPage("verify-certificate.html"));
   app.get("/about", sendPage("about.html"));
   app.get("/contact", sendPage("contact.html"));
-  app.get("/login", sendPage("login.html"));
-  app.get("/register", sendPage("register.html"));
   app.get("/dashboard", sendPage("dashboard.html"));
+
+  // ---- Admin pages ----
+  app.get("/admin", sendPage("admin-dashboard.html"));
+  app.get("/admin/manage-courses", sendPage("manage-courses.html"));
+  app.get("/admin/manage-students", sendPage("manage-students.html"));
+  app.get("/admin/manage-certificates", sendPage("manage-certificates.html"));
+  app.get("/admin/manage-exams", sendPage("manage-exams.html"));
 
   // ---- API 404 (JSON) ----
   app.use("/api", notFound);

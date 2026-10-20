@@ -1,7 +1,7 @@
 // ============================================================
 // public/js/lesson.js
 // Lesson viewer: fetch lesson, render markdown, sidebar, prev/next.
-// Requires: api.js, main.js, auth.js, enroll.js, ide.js
+// Requires: api.js, main.js, auth.js, ide.js
 // ============================================================
 
 (function () {
@@ -28,10 +28,8 @@
     return;
   }
 
-  // --- Minimal markdown → HTML renderer ---
   function renderMarkdown(md) {
     let html = escapeHtml(md || "");
-
     const codeBlocks = [];
     html = html.replace(/```([\s\S]*?)```/g, (_, code) => {
       const token = `@@CODEBLOCK${codeBlocks.length}@@`;
@@ -114,7 +112,6 @@
     layout.style.display = "none";
   }
 
-  // Expose callback for the IDE to trigger completion
   window.__lessonOnComplete = function () {
     if (markBar) {
       markBar.style.display = "flex";
@@ -167,40 +164,41 @@
           </a>`;
       }
 
-      // Mount IDE if exercise enabled
+      // Mount IDE if exercise enabled and fully loaded
       if (lesson.exercise && lesson.exercise.enabled && window.ideController) {
         await window.ideController.mount(lesson);
       }
 
       // Mark complete bar
-      const user = await auth.me();
-      if (!user) {
-        markBar.innerHTML = `
-          <p style="margin:0; color: var(--text-muted);">
-            <a href="/login.html?next=${encodeURIComponent(window.location.pathname + window.location.search)}">Log in</a>
-            to track your progress.
-          </p>`;
-      } else if (!enrolled) {
-        markBar.innerHTML = `
-          <p style="margin:0; color: var(--text-muted);">
-            <a href="/course-details.html?slug=${encodeURIComponent(course.slug)}">Enroll in this course</a>
-            to track your progress.
-          </p>`;
-      } else if (completed) {
+      if (completed) {
         markBar.innerHTML = `
           <p style="margin:0; color: var(--success); font-weight:600;">✅ You've completed this lesson</p>`;
       } else if (lesson.exercise && lesson.exercise.enabled) {
-        // Exercise lessons: completion happens via the IDE test runner
         markBar.style.display = "none";
       } else {
         markBar.innerHTML = `
           <button class="btn btn-primary" id="mark-complete-btn">Mark as complete</button>`;
         const btn = document.getElementById("mark-complete-btn");
+        
         btn.addEventListener("click", async () => {
           btn.disabled = true;
           btn.textContent = "Saving...";
           try {
-            await enrollment.markLessonComplete(lesson._id);
+            const csrfRes = await fetch("/api/auth/csrf");
+            const csrfData = await csrfRes.json();
+
+            const response = await fetch("/api/progress", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfData.csrfToken
+              },
+              body: JSON.stringify({ lessonId: lesson._id })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || "Failed to save progress.");
+
             btn.textContent = "✅ Completed";
             btn.classList.remove("btn-primary");
             btn.classList.add("btn-secondary");
@@ -208,7 +206,7 @@
           } catch (err) {
             btn.disabled = false;
             btn.textContent = "Mark as complete";
-            alert(err.message || "Failed to save progress.");
+            alert(err.message);
           }
         });
       }
