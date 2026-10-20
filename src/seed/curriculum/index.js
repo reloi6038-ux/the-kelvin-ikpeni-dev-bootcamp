@@ -20,6 +20,7 @@ const paths = [
   require("./path-14-render"),
   require("./path-15-advanced"),
   require("./path-16-capstone"),
+  require("./path-17-first-fullstack"),
 ];
 
 module.exports = paths;
