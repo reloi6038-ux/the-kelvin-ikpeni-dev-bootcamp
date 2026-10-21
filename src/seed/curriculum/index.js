@@ -28,6 +28,7 @@ const paths = [
   require("./path-22-backend-security"),
   require("./path-23-authentication"),
   require("./path-24-testing-debugging"),
+  require("./path-25-mongodb"),
 ];
 
 module.exports = paths;
