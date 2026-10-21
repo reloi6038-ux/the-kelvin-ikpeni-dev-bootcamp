@@ -30,6 +30,7 @@ const paths = [
   require("./path-24-testing-debugging"),
   require("./path-25-mongodb"),
   require("./path-26-deployment"),
+  require("./path-27-beginner-frontend"),
 ];
 
 module.exports = paths;
