@@ -34,76 +34,31 @@
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-eyebrow">
-          <span class="hero-eyebrow-dot"></span>
-          <span>Full-stack curriculum · Built for beginners</span>
+          <span>🚀 26 Courses · 200+ Lessons · Production Ready</span>
         </div>
-        <h1>Learn to Code. Build Real Projects. Become a Developer.</h1>
+        <h1>Master Full-Stack Development.</h1>
         <p class="hero-lead">
-          A complete, hands-on path from computer fundamentals to production-ready
-          full-stack applications — with an in-browser coding IDE, quizzes, and
-          verifiable certificates.
+          A complete, hands-on curriculum from computer fundamentals to advanced backend architecture. Learn by building real projects, writing code in the browser, and earning verifiable certificates.
         </p>
         <div class="hero-actions">
           <a href="/courses.html" class="btn btn-primary btn-lg">Start Learning</a>
-          <a href="/courses.html" class="btn btn-secondary btn-lg">Explore Courses</a>
-        </div>
-
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-value">16</div>
-            <div class="hero-stat-label">Learning Paths</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">100%</div>
-            <div class="hero-stat-label">Project-Based</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">0</div>
-            <div class="hero-stat-label">Setup Required</div>
-          </div>
+          <a href="/courses.html" class="btn btn-secondary btn-lg">Explore Curriculum</a>
         </div>
       </div>
     </section>
 
-    <!-- Featured courses (live from API) -->
+    <!-- Featured courses -->
     <section class="section">
       <div class="container">
         <div class="section-header">
           <h2>Featured Learning Paths</h2>
-          <p>Start with the fundamentals, then build up to full-stack mastery.</p>
+          <p>Start with the fundamentals, then build up to professional engineering.</p>
         </div>
-        <div class="courses-grid" data-courses-grid data-limit="3">
-          <!-- Filled by courses.js from /api/courses -->
+        <div class="courses-grid" id="featured-grid">
+          <!-- Filled by JS -->
         </div>
         <div class="text-center mt-8">
-          <a href="/courses.html" class="btn btn-secondary btn-lg">View all courses →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" style="background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
-      <div class="container">
-        <div class="section-header">
-          <h2>Frequently Asked Questions</h2>
-        </div>
-        <div class="faq-list">
-          <details class="faq-item">
-            <summary>Do I need any prior coding experience?</summary>
-            <p>No. The curriculum starts with computer fundamentals and assumes zero prior knowledge. Every concept is introduced from scratch.</p>
-          </details>
-          <details class="faq-item">
-            <summary>What will I build?</summary>
-            <p>By the end of the program you'll have built multiple projects — a portfolio website, an interactive task manager, a blog backend, and a full-stack application deployed to the cloud.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Is there a coding environment in the lessons?</summary>
-            <p>Yes. Every coding lesson includes an embedded IDE where you can write HTML, CSS, and JavaScript and see a live preview immediately — no installation required.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Do I earn a certificate?</summary>
-            <p>Yes. After completing the curriculum and passing the final examination, you'll receive a downloadable PDF certificate with a unique ID you can share publicly.</p>
-          </details>
+          <a href="/courses.html" class="btn btn-secondary btn-lg">View all 26 courses →</a>
         </div>
       </div>
     </section>
@@ -111,36 +66,6 @@
 
   <footer class="footer">
     <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="/" class="nav-logo">
-            <span class="nav-logo-mark">K</span>
-            <span>The Kelvin Ikpeni Dev Bootcamp</span>
-          </a>
-          <p>A world-class full-stack development learning platform — built for beginners, engineered for professionals.</p>
-        </div>
-        <div class="footer-col">
-          <h4>Learn</h4>
-          <ul>
-            <li><a href="/courses.html">All Courses</a></li>
-            <li><a href="/courses.html">Learning Paths</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Bootcamp</h4>
-          <ul>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Account</h4>
-          <ul>
-            <li><a href="/dashboard.html">My Dashboard</a></li>
-            <li><a href="/certificates.html">My Certificates</a></li>
-          </ul>
-        </div>
-      </div>
       <div class="footer-bottom">
         <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp. All rights reserved.</span>
         <span>Built with Node.js, Express &amp; MongoDB</span>
@@ -150,6 +75,31 @@
 
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
-  <script src="/js/courses.js"></script>
+  <script>
+    (async function () {
+      const grid = document.getElementById("featured-grid");
+      if (!grid) return;
+      try {
+        const data = await apiRequest("/api/courses");
+        // Pick 3 distinct featured courses (e.g., HTML5, JavaScript, Advanced API)
+        const featuredSlugs = ["html5", "javascript", "advanced-api-development"];
+        const featured = data.courses.filter(c => featuredSlugs.includes(c.slug));
+        
+        grid.innerHTML = featured.map(c => `
+          <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(c.slug)}">
+            <span class="course-card-level ${escapeHtml(c.level)}">${escapeHtml(c.level)}</span>
+            <h3>${escapeHtml(c.title)}</h3>
+            <p class="course-card-desc">${escapeHtml(c.description)}</p>
+            <div class="course-card-meta">
+              <span>📚 ${c.estimatedHours} hours</span>
+              <span>→ View course</span>
+            </div>
+          </a>
+        `).join("");
+      } catch (e) {
+        grid.innerHTML = `<p class="state-message error" style="grid-column: 1/-1;">Failed to load featured courses.</p>`;
+      }
+    })();
+  </script>
 </body>
 </html>

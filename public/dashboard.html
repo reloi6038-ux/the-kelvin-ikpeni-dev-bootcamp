@@ -41,25 +41,30 @@
         <div id="dashboard-error" class="state-message error" style="display:none;"></div>
 
         <div id="dashboard-content" style="display:none;">
+          
           <!-- Profile -->
-          <h2>Your profile</h2>
-          <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8);">
-            <div style="display:flex; gap: var(--sp-2); align-items:center; margin-bottom: var(--sp-2);">
-              <p style="margin:0;"><strong>Name:</strong></p>
-              <input type="text" id="profile-name" style="padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: white; width: 200px;" placeholder="Enter your name">
-              <button id="save-name-btn" class="btn btn-primary" style="padding: 8px 16px;">Save</button>
+          <h2>Your Profile</h2>
+          <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8); padding: var(--sp-6);">
+            <div style="display:flex; gap: var(--sp-3); align-items:flex-end; margin-bottom: var(--sp-4);">
+              <div style="flex:1;">
+                <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Display Name</label>
+                <input type="text" id="profile-name" style="width: 100%; padding: 10px; margin-top: 4px; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--bg-elevated); color: white;">
+              </div>
+              <button id="save-name-btn" class="btn btn-primary">Save</button>
             </div>
-            <p id="name-status" style="font-size: 0.85rem; color: var(--success); min-height: 1.2em; margin-top: 4px;"></p>
+            <p id="name-status" style="font-size: 0.85rem; color: var(--success); min-height: 1.2em; margin: 0 0 var(--sp-4);"></p>
             
-            <p><strong>Email:</strong> <span id="profile-email">—</span></p>
-            <p><strong>Role:</strong> <span id="profile-role">—</span></p>
-            <p><strong>Joined:</strong> <span id="profile-joined">—</span></p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4);">
+              <div><strong>Email:</strong> <br><span id="profile-email" style="color:var(--text-muted);">—</span></div>
+              <div><strong>Role:</strong> <br><span id="profile-role" style="color:var(--text-muted);">—</span></div>
+              <div><strong>Joined:</strong> <br><span id="profile-joined" style="color:var(--text-muted);">—</span></div>
+            </div>
           </div>
 
           <!-- Enrolled courses -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-4);">
-            <h2 style="margin:0;">Your courses</h2>
-            <a href="/courses.html" class="btn btn-secondary">+ Enroll in more</a>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-6);">
+            <h2 style="margin:0;">Your Courses</h2>
+            <a href="/courses.html" class="btn btn-secondary">+ Browse Catalog</a>
           </div>
 
           <div id="enrolled-grid" class="courses-grid">
@@ -67,8 +72,8 @@
           </div>
 
           <!-- Certificates -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin: var(--sp-8) 0 var(--sp-4);">
-            <h2 style="margin:0;">Your certificates</h2>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin: var(--sp-10) 0 var(--sp-6);">
+            <h2 style="margin:0;">Your Certificates</h2>
             <a href="/certificates.html" class="btn btn-secondary">View all →</a>
           </div>
           <div id="certs-preview" class="courses-grid">
@@ -96,18 +101,14 @@
         const user = await auth.requireAuthOrRedirect();
         if (!user) return;
 
-        // Set Welcome message
         const displayName = user.name === "Guest Student" || !user.name ? "" : user.name;
         welcome.textContent = displayName ? `Welcome, ${displayName}!` : "Welcome to your Dashboard!";
         nameInput.value = displayName;
 
         document.getElementById("profile-email").textContent = user.email || "—";
         document.getElementById("profile-role").textContent = user.role || "—";
-        document.getElementById("profile-joined").textContent = user.createdAt
-          ? new Date(user.createdAt).toLocaleDateString()
-          : "—";
+        document.getElementById("profile-joined").textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—";
 
-        // Save Name Button Logic
         saveBtn.addEventListener("click", async () => {
           const newName = nameInput.value.trim();
           if (!newName) return (nameStatus.textContent = "Please enter a name.");
@@ -119,25 +120,18 @@
           try {
             const csrfRes = await fetch("/api/auth/csrf");
             const csrfData = await csrfRes.json();
-            
             const response = await fetch("/api/auth/update-profile", {
               method: "POST",
-              headers: { 
-                "Content-Type": "application/json", 
-                "X-CSRF-Token": csrfData.csrfToken 
-              },
+              headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfData.csrfToken },
               body: JSON.stringify({ name: newName })
             });
-            
-            const data = await response.json();
-            
             if (response.ok) {
               nameStatus.style.color = "var(--success)";
-              nameStatus.textContent = "✅ Name saved successfully!";
+              nameStatus.textContent = "✅ Name saved!";
               welcome.textContent = `Welcome, ${newName}!`;
               setTimeout(() => nameStatus.textContent = "", 3000);
             } else {
-              throw new Error(data.message || "Failed to save name.");
+              throw new Error("Failed to save name.");
             }
           } catch (e) {
             nameStatus.style.color = "var(--danger)";
@@ -148,85 +142,60 @@
           }
         });
 
-        // ---- Load enrolled courses ----
+        // Load enrolled courses
         const grid = document.getElementById("enrolled-grid");
         const list = await apiRequest("/api/enrollments");
 
         if (!list.enrollments || list.enrollments.length === 0) {
-          grid.innerHTML = `
-            <div class="state-message" style="grid-column: 1 / -1;">
-              You haven't enrolled in any courses yet.
-              <br />
-              <a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a>
-            </div>`;
+          grid.innerHTML = `<div class="state-message" style="grid-column: 1 / -1;">You haven't enrolled in any courses yet.<br><a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a></div>`;
         } else {
-          grid.innerHTML = list.enrollments
-            .map((enr) => {
-              const p = enr.progress;
-              return `
-                <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(enr.course.slug)}">
-                  <span class="course-card-level ${escapeHtml(enr.course.level)}">${escapeHtml(enr.course.level)}</span>
-                  <h3>${escapeHtml(enr.course.title)}</h3>
-                  <p class="course-card-desc">${escapeHtml(enr.course.description)}</p>
-                  <div style="margin-top:auto;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color: var(--text-muted); margin-bottom: var(--sp-2);">
-                      <span>Progress</span>
-                      <span>${p.completed} / ${p.total} lessons</span>
-                    </div>
-                    <div style="background: var(--bg-elevated); border-radius: var(--r-full); height: 8px; overflow: hidden;">
-                      <div style="height:100%; width:${p.percent}%; background: linear-gradient(90deg, var(--primary), #7c5cff);"></div>
-                    </div>
-                    <div style="margin-top: var(--sp-2); font-weight:600; color: var(--primary);">
-                      ${p.percent}% complete
-                    </div>
+          grid.innerHTML = list.enrollments.map((enr) => {
+            const p = enr.progress;
+            return `
+              <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(enr.course.slug)}">
+                <span class="course-card-level ${escapeHtml(enr.course.level)}">${escapeHtml(enr.course.level)}</span>
+                <h3>${escapeHtml(enr.course.title)}</h3>
+                <p class="course-card-desc">${escapeHtml(enr.course.description)}</p>
+                <div style="margin-top:auto;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.85rem; color: var(--text-muted); margin-bottom: var(--sp-2);">
+                    <span>Progress</span>
+                    <span>${p.completed} / ${p.total} lessons</span>
                   </div>
-                </a>`;
-            })
-            .join("");
+                  <div style="background: var(--bg-elevated); border-radius: var(--r-full); height: 8px; overflow: hidden;">
+                    <div style="height:100%; width:${p.percent}%; background: linear-gradient(90deg, var(--primary), #7c5cff);"></div>
+                  </div>
+                  <div style="margin-top: var(--sp-2); font-weight:700; color: var(--primary);">${p.percent}% complete</div>
+                </div>
+              </a>`;
+          }).join("");
         }
 
-        // ---- Load certificates ----
+        // Load certificates
         try {
           const certs = await apiRequest("/api/certificates");
           const preview = document.getElementById("certs-preview");
           if (!certs.certificates || certs.certificates.length === 0) {
-            preview.innerHTML = `
-              <div class="state-message" style="grid-column: 1 / -1; padding: var(--sp-6);">
-                No certificates yet — complete a course and pass its final exam to earn one.
-              </div>`;
+            preview.innerHTML = `<div class="state-message" style="grid-column: 1 / -1;">No certificates yet — complete a course and pass its final exam to earn one.</div>`;
           } else {
-            preview.innerHTML = certs.certificates
-              .slice(0, 3)
-              .map(
-                (c) => `
-                  <div class="course-card">
-                    <div class="course-card-icon" aria-hidden="true">🎓</div>
-                    <h3>${escapeHtml(c.courseTitle)}</h3>
-                    <p class="course-card-desc">
-                      <strong>${c.type === "accomplishment" ? "Statement of Accomplishment" : "Certificate of Completion"}</strong><br>
-                      Awarded to <strong>${escapeHtml(c.studentName)}</strong><br>
-                      Issued: ${new Date(c.issuedAt).toLocaleDateString()}<br>
-                      ${c.revoked ? `<span style="color: var(--danger);">⚠ Revoked</span>` : `<span style="color: var(--success);">✓ Valid</span>`}
-                    </p>
-                    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--primary); margin-bottom: var(--sp-3);">
-                      ${escapeHtml(c.certificateId)}
-                    </p>
-                    <div style="display:flex; gap: var(--sp-2); flex-wrap:wrap; margin-top:auto;">
-                      ${c.revoked
-                        ? `<button class="btn btn-secondary" disabled>Unavailable</button>`
-                        : `<a class="btn btn-primary" href="/api/certificates/${encodeURIComponent(c.certificateId)}/download">⬇ PDF</a>`}
-                      <a class="btn btn-secondary" href="/verify-certificate.html?id=${encodeURIComponent(c.certificateId)}">Verify</a>
-                    </div>
-                  </div>`
-              )
-              .join("");
+            preview.innerHTML = certs.certificates.slice(0, 3).map((c) => `
+              <div class="course-card">
+                <div class="course-card-icon" aria-hidden="true">🎓</div>
+                <h3>${escapeHtml(c.courseTitle)}</h3>
+                <p class="course-card-desc">
+                  <strong>${c.type === "accomplishment" ? "Statement of Accomplishment" : "Certificate of Completion"}</strong><br>
+                  Awarded to <strong>${escapeHtml(c.studentName)}</strong><br>
+                  Issued: ${new Date(c.issuedAt).toLocaleDateString()}<br>
+                  ${c.revoked ? `<span style="color: var(--danger);">⚠ Revoked</span>` : `<span style="color: var(--success);">✓ Valid</span>`}
+                </p>
+                <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--primary); margin-bottom: var(--sp-3);">${escapeHtml(c.certificateId)}</p>
+                <div style="display:flex; gap: var(--sp-2); flex-wrap:wrap; margin-top:auto;">
+                  ${c.revoked ? `<button class="btn btn-secondary" disabled>Unavailable</button>` : `<a class="btn btn-primary" href="/api/certificates/${encodeURIComponent(c.certificateId)}/download">⬇ PDF</a>`}
+                  <a class="btn btn-secondary" href="/verify-certificate.html?id=${encodeURIComponent(c.certificateId)}">Verify</a>
+                </div>
+              </div>
+            `).join("");
           }
-        } catch (certErr) {
-          document.getElementById("certs-preview").innerHTML = `
-            <div class="state-message" style="grid-column: 1 / -1;">
-              Could not load certificates.
-            </div>`;
-        }
+        } catch (e) {}
 
         content.style.display = "block";
       } catch (err) {

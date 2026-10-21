@@ -7,6 +7,34 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
+  <style>
+    .level-group {
+      margin-bottom: var(--sp-12);
+    }
+    .level-header {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+      padding-bottom: var(--sp-4);
+      border-bottom: 1px solid var(--border);
+    }
+    .level-header h2 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .level-badge {
+      padding: 4px 12px;
+      border-radius: var(--r-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .level-badge.beginner { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+    .level-badge.intermediate { background: rgba(255, 184, 74, 0.1); color: var(--warning); }
+    .level-badge.advanced { background: rgba(255, 71, 87, 0.1); color: var(--danger); }
+  </style>
 </head>
 <body>
   <header class="nav">
@@ -31,22 +59,21 @@
   <main>
     <section class="page-header">
       <div class="container">
-        <h1>All Learning Paths</h1>
-        <p>Every path builds a real project. Every lesson is hands-on.</p>
+        <h1>Learning Paths</h1>
+        <p>26 comprehensive courses designed to take you from absolute beginner to senior backend engineer.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
-        <div class="filter-bar" role="tablist" aria-label="Filter courses by level">
-          <button class="filter-btn active" data-filter-level="all" role="tab" aria-selected="true">All Levels</button>
-          <button class="filter-btn" data-filter-level="beginner" role="tab">Beginner</button>
-          <button class="filter-btn" data-filter-level="intermediate" role="tab">Intermediate</button>
-          <button class="filter-btn" data-filter-level="advanced" role="tab">Advanced</button>
+        <div id="courses-loading" class="state-message">
+          <div class="spinner"></div>
+          <p>Loading curriculum...</p>
         </div>
-
-        <div class="courses-grid" data-courses-grid>
-          <!-- Filled by courses.js -->
+        <div id="courses-content" style="display:none;">
+          <div id="beginner-courses" class="level-group"></div>
+          <div id="intermediate-courses" class="level-group"></div>
+          <div id="advanced-courses" class="level-group"></div>
         </div>
       </div>
     </section>
@@ -63,6 +90,61 @@
 
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
-  <script src="/js/courses.js"></script>
+  <script>
+    (async function () {
+      const loading = document.getElementById("courses-loading");
+      const content = document.getElementById("courses-content");
+      
+      const groups = {
+        beginner: document.getElementById("beginner-courses"),
+        intermediate: document.getElementById("intermediate-courses"),
+        advanced: document.getElementById("advanced-courses")
+      };
+
+      try {
+        const data = await apiRequest("/api/courses");
+        const courses = data.courses || [];
+        
+        loading.style.display = "none";
+        content.style.display = "block";
+
+        const renderCards = (list) => list.map(c => `
+          <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(c.slug)}">
+            <span class="course-card-level ${escapeHtml(c.level)}">${escapeHtml(c.level)}</span>
+            <h3>${escapeHtml(c.title)}</h3>
+            <p class="course-card-desc">${escapeHtml(c.description)}</p>
+            <div class="course-card-meta">
+              <span>📚 ${c.estimatedHours} hours</span>
+              <span>→ View course</span>
+            </div>
+          </a>
+        `).join("");
+
+        const levels = [
+          { key: "beginner", title: "Beginner Foundations", badge: "Start Here" },
+          { key: "intermediate", title: "Intermediate Development", badge: "Level Up" },
+          { key: "advanced", title: "Advanced Engineering", badge: "Mastery" }
+        ];
+
+        levels.forEach(({ key, title, badge }) => {
+          const filtered = courses.filter(c => c.level === key);
+          if (filtered.length === 0) return;
+
+          groups[key].innerHTML = `
+            <div class="level-header">
+              <h2>${title}</h2>
+              <span class="level-badge ${key}">${badge}</span>
+            </div>
+            <div class="courses-grid">
+              ${renderCards(filtered)}
+            </div>
+          `;
+        });
+
+      } catch (err) {
+        loading.innerHTML = `<p class="state-message error">Failed to load courses: ${escapeHtml(err.message)}</p>`;
+      }
+    })();
+  </script>
 </body>
 </html>
