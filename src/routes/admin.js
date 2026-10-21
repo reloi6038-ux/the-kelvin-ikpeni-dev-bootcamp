@@ -19,6 +19,7 @@ const Certificate = require("../models/Certificate");
 const ExamAttempt = require("../models/ExamAttempt");
 const CodingSubmission = require("../models/CodingSubmission");
 const Quiz = require("../models/Quiz");
+const Message = require("../models/Message"); // <-- NEW
 
 // Apply requireAuth + requireAdmin to every route in this file
 router.use(requireAuth, requireAdmin);
@@ -36,6 +37,7 @@ router.get(
       totalCertificates,
       totalAttempts,
       totalSubmissions,
+      totalMessages,
     ] = await Promise.all([
       User.countDocuments({ role: "student" }),
       User.countDocuments({ role: "admin" }),
@@ -45,6 +47,7 @@ router.get(
       Certificate.countDocuments({ revoked: false }),
       ExamAttempt.countDocuments({}),
       CodingSubmission.countDocuments({}),
+      Message.countDocuments({}),
     ]);
 
     res.json({
@@ -58,6 +61,7 @@ router.get(
         totalCertificates,
         totalAttempts,
         totalSubmissions,
+        totalMessages,
       },
     });
   })
@@ -115,7 +119,6 @@ router.patch(
       return next(err);
     }
 
-    // Prevent self-demotion (last admin guard)
     if (req.params.id === req.user._id.toString() && role !== "admin") {
       const err = new Error("You cannot demote yourself");
       err.statusCode = 400;
@@ -143,11 +146,8 @@ router.patch(
 router.get(
   "/courses",
   asyncHandler(async (req, res) => {
-    const courses = await Course.find({})
-      .sort({ order: 1 })
-      .lean();
+    const courses = await Course.find({}).sort({ order: 1 }).lean();
 
-    // Attach counts
     const enriched = await Promise.all(
       courses.map(async (c) => {
         const [modules, lessons, enrollments] = await Promise.all([
@@ -183,10 +183,7 @@ router.post(
     }
 
     const course = await Course.create({
-      title,
-      slug,
-      description,
-      level,
+      title, slug, description, level,
       estimatedHours: estimatedHours || 10,
       order: order || 0,
       isPublished: false,
@@ -201,24 +198,14 @@ router.patch(
   "/courses/:id",
   auditLog("update-course"),
   asyncHandler(async (req, res, next) => {
-    const allowed = [
-      "title",
-      "slug",
-      "description",
-      "level",
-      "estimatedHours",
-      "order",
-      "isPublished",
-      "icon",
-    ];
+    const allowed = ["title", "slug", "description", "level", "estimatedHours", "order", "isPublished", "icon"];
     const updates = {};
     for (const k of allowed) {
       if (req.body[k] !== undefined) updates[k] = req.body[k];
     }
 
     const course = await Course.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true,
+      new: true, runValidators: true,
     });
 
     if (!course) {
@@ -242,7 +229,6 @@ router.delete(
       err.statusCode = 404;
       return next(err);
     }
-    // Cascade: delete modules + lessons + quizzes for this course
     await Promise.all([
       Module.deleteMany({ courseId: course._id }),
       Lesson.deleteMany({ courseId: course._id }),
@@ -256,10 +242,7 @@ router.delete(
 router.get(
   "/certificates",
   asyncHandler(async (req, res) => {
-    const certs = await Certificate.find({})
-      .sort({ issuedAt: -1 })
-      .limit(200)
-      .lean();
+    const certs = await Certificate.find({}).sort({ issuedAt: -1 }).limit(200).lean();
     res.json({ success: true, count: certs.length, certificates: certs });
   })
 );
@@ -317,6 +300,17 @@ router.get(
       .populate("lessonId", "title")
       .lean();
     res.json({ success: true, count: subs.length, submissions: subs });
+  })
+);
+
+// ---------- GET /api/admin/messages ----------
+router.get(
+  "/messages",
+  asyncHandler(async (req, res) => {
+    const messages = await Message.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ success: true, count: messages.length, messages });
   })
 );
 

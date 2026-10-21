@@ -23,30 +23,22 @@ const quizRoutes = require("./routes/quizzes");
 const examRoutes = require("./routes/exams");
 const certificateRoutes = require("./routes/certificates");
 const adminRoutes = require("./routes/admin");
+const contactRoutes = require("./routes/contact");
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 function createApp() {
   const app = express();
 
-  // ---- Security headers ----
   app.use(helmet({ contentSecurityPolicy: false }));
-
-  // ---- Request logging ----
   app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "tiny"));
-
-  // ---- Body parsing ----
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-
-  // ---- Trust proxy ----
   app.set("trust proxy", 1);
-
-  // ---- Sessions ----
   app.use(buildSessionMiddleware());
 
-  // ---- AUTO-LOGIN FOR GUESTS (Bypasses Auth) ----
+  // ---- AUTO-LOGIN FOR GUESTS ----
   app.use(async (req, res, next) => {
     if (!req.session.userId) {
       try {
@@ -54,28 +46,19 @@ function createApp() {
         let guest = await User.findOne({ email: "guest@kelvinbootcamp.com" });
         if (!guest) {
           guest = await User.create({
-            name: "Guest Student",
-            email: "guest@kelvinbootcamp.com",
-            passwordHash: "no-password-required",
-            role: "student",
+            name: "Guest Student", email: "guest@kelvinbootcamp.com",
+            passwordHash: "no-password-required", role: "student",
           });
         }
         req.session.userId = guest._id.toString();
         req.session.role = guest.role;
-      } catch (err) {
-        console.error("Auto-login error:", err);
-      }
+      } catch (err) { console.error("Auto-login error:", err); }
     }
     next();
   });
 
-  // ---- Global API rate limit ----
   app.use("/api", apiLimiter);
-
-  // ---- CSRF protection (skips GET requests automatically) ----
   app.use("/api", verifyCsrf);
-
-  // ---- Static assets ----
   app.use(express.static(path.join(__dirname, "..", "public")));
 
   // ---- API routes ----
@@ -90,6 +73,7 @@ function createApp() {
   app.use("/api/exams", examRoutes);
   app.use("/api/certificates", certificateRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/contact", contactRoutes);
 
   // ---- HTML page routes ----
   const sendPage = (file) => (req, res) =>
@@ -115,16 +99,12 @@ function createApp() {
   app.get("/admin/manage-students", sendPage("manage-students.html"));
   app.get("/admin/manage-certificates", sendPage("manage-certificates.html"));
   app.get("/admin/manage-exams", sendPage("manage-exams.html"));
+  app.get("/admin/manage-messages", sendPage("manage-messages.html")); // <-- NEW PAGE
 
-  // ---- API 404 ----
   app.use("/api", notFound);
-
-  // ---- Page 404 ----
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "..", "public", "404.html"));
   });
-
-  // ---- Central error handler ----
   app.use(errorHandler);
 
   return app;

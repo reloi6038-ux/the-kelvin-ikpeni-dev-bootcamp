@@ -42,7 +42,6 @@
 
         <div id="dashboard-content" style="display:none;">
           
-          <!-- Profile -->
           <h2>Your Profile</h2>
           <div class="course-card" style="max-width: 640px; margin-bottom: var(--sp-8); padding: var(--sp-6);">
             <div style="display:flex; gap: var(--sp-3); align-items:flex-end; margin-bottom: var(--sp-4);">
@@ -61,7 +60,6 @@
             </div>
           </div>
 
-          <!-- Enrolled courses -->
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-6);">
             <h2 style="margin:0;">Your Courses</h2>
             <a href="/courses.html" class="btn btn-secondary">+ Browse Catalog</a>
@@ -71,7 +69,6 @@
             <!-- Filled by JS -->
           </div>
 
-          <!-- Certificates -->
           <div style="display:flex; justify-content:space-between; align-items:center; margin: var(--sp-10) 0 var(--sp-6);">
             <h2 style="margin:0;">Your Certificates</h2>
             <a href="/certificates.html" class="btn btn-secondary">View all →</a>
@@ -83,6 +80,23 @@
       </div>
     </section>
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div style="display: flex; gap: var(--sp-6); justify-content: center; margin-bottom: var(--sp-6); flex-wrap: wrap;">
+        <a href="/courses.html">Courses</a>
+        <a href="/about.html">About Us</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/certificates.html">Certificates</a>
+        <a href="/verify-certificate.html">Verify Certificate</a>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp.</span>
+        <span>Built with Node.js, Express &amp; MongoDB</span>
+      </div>
+    </div>
+  </footer>
 
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
@@ -142,14 +156,12 @@
           }
         });
 
-        // Load enrolled courses
         const grid = document.getElementById("enrolled-grid");
         const list = await apiRequest("/api/enrollments");
 
         if (!list.enrollments || list.enrollments.length === 0) {
           grid.innerHTML = `<div class="state-message" style="grid-column: 1 / -1;">You haven't enrolled in any courses yet.<br><a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a></div>`;
         } else {
-          // FIX: Changed href to /course-details?slug= (clean URL)
           grid.innerHTML = list.enrollments.map((enr) => {
             const p = enr.progress;
             return `
@@ -171,7 +183,6 @@
           }).join("");
         }
 
-        // Load certificates
         try {
           const certs = await apiRequest("/api/certificates");
           const preview = document.getElementById("certs-preview");

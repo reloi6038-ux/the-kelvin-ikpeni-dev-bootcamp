@@ -18,6 +18,7 @@
         <li><a href="/admin/manage-students">Students</a></li>
         <li><a href="/admin/manage-certificates">Certificates</a></li>
         <li><a href="/admin/manage-exams">Exams</a></li>
+        <li><a href="/admin/manage-messages">Messages</a></li>
       </ul>
       <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
     </div>
@@ -31,7 +32,7 @@
       <div class="container">
         <div id="students-error" class="state-message error" style="display:none;"></div>
         <div class="form-group" style="max-width: 400px; margin-bottom: var(--sp-4);">
-          <input id="search" type="text" placeholder="Search by name or email...">
+          <input id="search" type="text" placeholder="Search by name or email..." style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;">
         </div>
         <div id="students-list"></div>
       </div>
@@ -61,7 +62,7 @@
             ${res.students
               .map(
                 (s) => `
-                <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap;">
+                <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap; padding: var(--sp-4);">
                   <div>
                     <strong>${escapeHtml(s.name)}</strong> — ${escapeHtml(s.email)}
                     <span style="padding: 2px 8px; border-radius: 999px; margin-left: var(--sp-2); font-size:0.8rem; ${s.role === "admin" ? "background: rgba(74,158,255,0.15); color: var(--primary);" : "background: rgba(154,164,191,0.15); color: var(--text-muted);"}">

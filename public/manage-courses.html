@@ -21,6 +21,7 @@
         <li><a href="/admin/manage-students">Students</a></li>
         <li><a href="/admin/manage-certificates">Certificates</a></li>
         <li><a href="/admin/manage-exams">Exams</a></li>
+        <li><a href="/admin/manage-messages">Messages</a></li>
       </ul>
       <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
     </div>
@@ -40,22 +41,24 @@
 
         <button class="btn btn-primary mb-4" id="new-course-btn">+ New Course</button>
 
-        <div id="new-course-form" class="course-card" style="display:none; margin-bottom: var(--sp-6);">
+        <div id="new-course-form" class="course-card" style="display:none; margin-bottom: var(--sp-6); padding: var(--sp-6);">
           <h3>Create Course</h3>
-          <div class="form-group"><label>Title</label><input id="c-title" type="text"></div>
-          <div class="form-group"><label>Slug</label><input id="c-slug" type="text" placeholder="e.g. my-new-course"></div>
-          <div class="form-group"><label>Description</label><textarea id="c-desc" rows="3"></textarea></div>
-          <div class="form-group"><label>Level</label>
-            <select id="c-level">
+          <div class="form-group"><label>Title</label><input id="c-title" type="text" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;"></div>
+          <div class="form-group" style="margin-top:10px;"><label>Slug</label><input id="c-slug" type="text" placeholder="e.g. my-new-course" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;"></div>
+          <div class="form-group" style="margin-top:10px;"><label>Description</label><textarea id="c-desc" rows="3" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;"></textarea></div>
+          <div class="form-group" style="margin-top:10px;"><label>Level</label>
+            <select id="c-level" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;">
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
               <option value="advanced">Advanced</option>
             </select>
           </div>
-          <div class="form-group"><label>Estimated Hours</label><input id="c-hours" type="number" min="1" value="10"></div>
-          <div class="form-group"><label>Order</label><input id="c-order" type="number" value="0"></div>
-          <button class="btn btn-primary" id="create-course-btn">Create</button>
-          <button class="btn btn-secondary" id="cancel-create-btn">Cancel</button>
+          <div class="form-group" style="margin-top:10px;"><label>Estimated Hours</label><input id="c-hours" type="number" min="1" value="10" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;"></div>
+          <div class="form-group" style="margin-top:10px;"><label>Order</label><input id="c-order" type="number" value="0" style="width:100%; padding:10px; background:var(--bg-elevated); color:white; border:1px solid var(--border); border-radius:4px;"></div>
+          <div style="margin-top: var(--sp-4);">
+            <button class="btn btn-primary" id="create-course-btn">Create</button>
+            <button class="btn btn-secondary" id="cancel-create-btn">Cancel</button>
+          </div>
         </div>
 
         <div id="courses-list"></div>
@@ -106,7 +109,7 @@
           listEl.innerHTML = res.courses
             .map(
               (c) => `
-                <div class="course-card" style="margin-bottom: var(--sp-3);">
+                <div class="course-card" style="margin-bottom: var(--sp-3); padding: var(--sp-5);">
                   <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--sp-3); flex-wrap:wrap;">
                     <div>
                       <h3 style="margin:0 0 var(--sp-1);">${escapeHtml(c.title)}</h3>

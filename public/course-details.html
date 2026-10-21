@@ -68,6 +68,14 @@
 
   <footer class="footer">
     <div class="container">
+      <div style="display: flex; gap: var(--sp-6); justify-content: center; margin-bottom: var(--sp-6); flex-wrap: wrap;">
+        <a href="/courses.html">Courses</a>
+        <a href="/about.html">About Us</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/certificates.html">Certificates</a>
+        <a href="/verify-certificate.html">Verify Certificate</a>
+      </div>
       <div class="footer-bottom">
         <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp.</span>
       </div>
@@ -97,7 +105,6 @@
         return;
       }
 
-      // 1. Fetch CSRF token FIRST
       let csrfToken = "";
       try {
         const res = await fetch("/api/auth/csrf");
@@ -107,9 +114,8 @@
 
       let courseId = null;
       let courseTitle = "";
-      let allModules = []; // Store modules to find the first lesson later
+      let allModules = [];
 
-      // 2. Load Course Content
       try {
         const data = await apiRequest(`/api/courses/${encodeURIComponent(slug)}`);
         const course = data.course;
@@ -168,7 +174,6 @@
 
       let isEnrolled = false;
 
-      // 3. Check Enrollment Status
       try {
         const list = await apiRequest("/api/enrollments");
         const existing = list.enrollments.find((e) => e.course.slug === slug);
@@ -178,7 +183,6 @@
           enrollBtn.textContent = "Continue learning";
           enrollBtn.disabled = false;
           
-          // FIX: Find the first lesson and go directly to it
           let firstLessonSlug = null;
           if (allModules.length > 0 && allModules[0].lessons && allModules[0].lessons.length > 0) {
             firstLessonSlug = allModules[0].lessons[0].slug;
@@ -215,7 +219,6 @@
               const data = await response.json();
               if (!response.ok) throw new Error(data.message || "Enrollment failed");
 
-              // If enrolling fresh, reload the page to show the "Continue learning" state
               window.location.reload();
             } catch (enrollErr) {
               enrollStatus.textContent = enrollErr.message;
@@ -230,7 +233,6 @@
         enrollStatus.textContent = "Could not check enrollment status.";
       }
 
-      // 4. Certificate Eligibility
       if (isEnrolled) {
         try {
           const certsRes = await apiRequest("/api/certificates");

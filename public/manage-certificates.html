@@ -18,6 +18,7 @@
         <li><a href="/admin/manage-students">Students</a></li>
         <li><a href="/admin/manage-certificates">Certificates</a></li>
         <li><a href="/admin/manage-exams">Exams</a></li>
+        <li><a href="/admin/manage-messages">Messages</a></li>
       </ul>
       <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
     </div>
@@ -54,9 +55,10 @@
           listEl.innerHTML = res.certificates
             .map(
               (c) => `
-              <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap;">
+              <div class="course-card" style="margin-bottom: var(--sp-3); display:flex; justify-content:space-between; align-items:center; gap: var(--sp-3); flex-wrap:wrap; padding: var(--sp-4);">
                 <div>
                   <strong>${escapeHtml(c.studentName)}</strong> — ${escapeHtml(c.courseTitle)}
+                  <span style="padding: 2px 8px; border-radius: 999px; margin-left: 8px; font-size: 0.75rem; background: rgba(74, 158, 255, 0.1); color: var(--primary);">${c.type === 'accomplishment' ? 'Accomplishment' : 'Completion'}</span>
                   <p style="margin: var(--sp-1) 0 0; font-family: var(--font-mono); font-size:0.85rem; color: var(--primary);">
                     ${escapeHtml(c.certificateId)}
                   </p>

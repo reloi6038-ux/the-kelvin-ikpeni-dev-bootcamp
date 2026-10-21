@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo"><span class="nav-logo-mark">K</span><span>Admin</span></a>
+      <ul class="nav-links" data-nav-links>
+        <li><a href="/admin">Overview</a></li>
+        <li><a href="/admin/manage-courses">Courses</a></li>
+        <li><a href="/admin/manage-students">Students</a></li>
+        <li><a href="/admin/manage-certificates">Certificates</a></li>
+        <li><a href="/admin/manage-messages">Messages</a></li>
+      </ul>
+      <div class="nav-cta"><a href="/" class="btn btn-secondary">← Site</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container"><h1>Inbox Messages</h1></div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div id="messages-error" class="state-message error" style="display:none;"></div>
+        <div id="messages-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    (async function () {
+      const user = await admin.guard();
+      if (!user) return;
+      
+      const listEl = document.getElementById("messages-list");
+      const errEl = document.getElementById("messages-error");
+
+      try {
+        const res = await admin.adminRequest("/api/admin/messages");
+        
+        if (res.count === 0) {
+          listEl.innerHTML = `<div class="state-message">No messages yet.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = res.messages.map((m) => `
+          <div class="course-card" style="margin-bottom: var(--sp-4); padding: var(--sp-5);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: var(--sp-3); flex-wrap: wrap; gap: var(--sp-2);">
+              <div>
+                <h3 style="margin:0 0 var(--sp-1);">${escapeHtml(m.subject)}</h3>
+                <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">
+                  From: <strong>${escapeHtml(m.name)}</strong> &lt;${escapeHtml(m.email)}&gt;
+                </p>
+              </div>
+              <span style="font-size:0.8rem; color:var(--text-dim);">
+                ${new Date(m.createdAt).toLocaleString()}
+              </span>
+            </div>
+            <div style="background:var(--bg-elevated); padding:var(--sp-4); border-radius:var(--r-md); border:1px solid var(--border); white-space:pre-wrap; font-size:0.95rem;">
+              ${escapeHtml(m.message)}
+            </div>
+            <div style="margin-top: var(--sp-4); display:flex; gap: var(--sp-2);">
+               <a href="mailto:${escapeHtml(m.email)}?subject=Re: ${escapeHtml(m.subject)}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">Reply via Email</a>
+            </div>
+          </div>
+        `).join("");
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = "block";
+      }
+    })();
+  </script>
+</body>
+</html>

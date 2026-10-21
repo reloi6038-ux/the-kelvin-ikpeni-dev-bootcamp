@@ -8,27 +8,16 @@
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
   <style>
-    .level-group {
-      margin-bottom: var(--sp-12);
-    }
+    .level-group { margin-bottom: var(--sp-12); }
     .level-header {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-4);
-      margin-bottom: var(--sp-6);
-      padding-bottom: var(--sp-4);
+      display: flex; align-items: center; gap: var(--sp-4);
+      margin-bottom: var(--sp-6); padding-bottom: var(--sp-4);
       border-bottom: 1px solid var(--border);
     }
-    .level-header h2 {
-      margin: 0;
-      font-size: 1.8rem;
-    }
+    .level-header h2 { margin: 0; font-size: 1.8rem; }
     .level-badge {
-      padding: 4px 12px;
-      border-radius: var(--r-full);
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
+      padding: 4px 12px; border-radius: var(--r-full);
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .level-badge.beginner { background: rgba(52, 199, 89, 0.1); color: var(--success); }
@@ -49,6 +38,7 @@
         <li><a href="/courses.html">Courses</a></li>
         <li><a href="/about.html">About</a></li>
         <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/dashboard.html">Dashboard</a></li>
       </ul>
       <div class="nav-cta">
         <a href="/dashboard.html" class="btn btn-primary">My Dashboard</a>
@@ -81,6 +71,14 @@
 
   <footer class="footer">
     <div class="container">
+      <div style="display: flex; gap: var(--sp-6); justify-content: center; margin-bottom: var(--sp-6); flex-wrap: wrap;">
+        <a href="/courses.html">Courses</a>
+        <a href="/about.html">About Us</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/certificates.html">Certificates</a>
+        <a href="/verify-certificate.html">Verify Certificate</a>
+      </div>
       <div class="footer-bottom">
         <span>&copy; <span data-current-year></span> The Kelvin Ikpeni Dev Bootcamp.</span>
         <span>Built with Node.js, Express &amp; MongoDB</span>
@@ -94,7 +92,6 @@
     (async function () {
       const loading = document.getElementById("courses-loading");
       const content = document.getElementById("courses-content");
-      
       const groups = {
         beginner: document.getElementById("beginner-courses"),
         intermediate: document.getElementById("intermediate-courses"),
@@ -108,7 +105,6 @@
         loading.style.display = "none";
         content.style.display = "block";
 
-        // FIX: Changed href to /course-details?slug= (clean URL)
         const renderCards = (list) => list.map(c => `
           <a class="course-card" href="/course-details?slug=${encodeURIComponent(c.slug)}">
             <span class="course-card-level ${escapeHtml(c.level)}">${escapeHtml(c.level)}</span>
