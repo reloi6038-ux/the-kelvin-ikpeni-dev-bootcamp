@@ -40,6 +40,7 @@
     <section class="section">
       <div class="container">
         <div class="course-detail-layout">
+          
           <div class="course-detail-main" id="course-modules">
             <!-- Filled by JS -->
           </div>
@@ -47,19 +48,19 @@
           <aside class="course-sidebar">
             <h3>Course details</h3>
             <ul class="course-sidebar-list">
-              <li><strong>Level</strong><span id="sidebar-level">—</span></li>
-              <li><strong>Duration</strong><span id="sidebar-hours">—</span></li>
-              <li><strong>Modules</strong><span id="sidebar-modules">—</span></li>
-              <li><strong>Lessons</strong><span id="sidebar-lessons">—</span></li>
-              <li><strong>Your progress</strong><span id="sidebar-progress">—</span></li>
+              <li><strong>Level</strong> <span id="sidebar-level">—</span></li>
+              <li><strong>Duration</strong> <span id="sidebar-hours">—</span></li>
+              <li><strong>Modules</strong> <span id="sidebar-modules">—</span></li>
+              <li><strong>Lessons</strong> <span id="sidebar-lessons">—</span></li>
+              <li><strong>Your progress</strong> <span id="sidebar-progress">—</span></li>
             </ul>
             <button id="enroll-btn" class="btn btn-primary mt-6" style="width:100%;" disabled>
               Checking enrollment...
             </button>
             <p id="enroll-status" style="margin-top: var(--sp-3); color: var(--text-muted); font-size: 0.9rem; text-align:center;"></p>
-
             <div id="cert-area" style="margin-top: var(--sp-4);"></div>
           </aside>
+
         </div>
       </div>
     </section>
@@ -76,10 +77,12 @@
   <script src="/js/api.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/auth.js"></script>
+  
   <script>
     (async function () {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get("slug");
+      
       const modulesEl = document.getElementById("course-modules");
       const titleEl = document.getElementById("course-title");
       const descEl = document.getElementById("course-description");
@@ -94,14 +97,24 @@
         return;
       }
 
+      // 1. Fetch CSRF token FIRST
+      let csrfToken = "";
+      try {
+        const res = await fetch("/api/auth/csrf");
+        const data = await res.json();
+        csrfToken = data.csrfToken;
+      } catch (e) {}
+
       let courseId = null;
       let courseTitle = "";
+      let allModules = []; // Store modules to find the first lesson later
 
-      // ---- Load course content ----
+      // 2. Load Course Content
       try {
         const data = await apiRequest(`/api/courses/${encodeURIComponent(slug)}`);
         const course = data.course;
-        const modules = data.modules || [];
+        allModules = data.modules || [];
+        
         courseId = course._id;
         courseTitle = course.title;
 
@@ -111,20 +124,21 @@
 
         document.getElementById("sidebar-level").textContent = course.level;
         document.getElementById("sidebar-hours").textContent = `${course.estimatedHours} hours`;
-        document.getElementById("sidebar-modules").textContent = modules.length;
-        const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+        document.getElementById("sidebar-modules").textContent = allModules.length;
+        
+        const totalLessons = allModules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
         document.getElementById("sidebar-lessons").textContent = totalLessons;
 
-        if (modules.length === 0) {
+        if (allModules.length === 0) {
           modulesEl.innerHTML = `<div class="state-message">No modules yet — check back soon.</div>`;
         } else {
-          modulesEl.innerHTML = modules
+          modulesEl.innerHTML = allModules
             .map((mod) => {
               const lessons = (mod.lessons || [])
                 .map(
                   (l) => `
                     <li class="lesson-item">
-                      <a href="/lesson.html?course=${encodeURIComponent(slug)}&lesson=${encodeURIComponent(l.slug)}"
+                      <a href="/lesson?course=${encodeURIComponent(slug)}&lesson=${encodeURIComponent(l.slug)}"
                          style="display:flex; justify-content:space-between; align-items:center; width:100%; text-decoration:none; color:inherit; gap: var(--sp-3);">
                         <span class="lesson-title">${escapeHtml(l.title)}</span>
                         <span class="lesson-meta">${l.estimatedMinutes} min →</span>
@@ -132,6 +146,7 @@
                     </li>`
                 )
                 .join("");
+                
               return `
                 <article class="module">
                   <div class="module-header">
@@ -153,6 +168,7 @@
 
       let isEnrolled = false;
 
+      // 3. Check Enrollment Status
       try {
         const list = await apiRequest("/api/enrollments");
         const existing = list.enrollments.find((e) => e.course.slug === slug);
@@ -161,28 +177,37 @@
           isEnrolled = true;
           enrollBtn.textContent = "Continue learning";
           enrollBtn.disabled = false;
+          
+          // FIX: Find the first lesson and go directly to it
+          let firstLessonSlug = null;
+          if (allModules.length > 0 && allModules[0].lessons && allModules[0].lessons.length > 0) {
+            firstLessonSlug = allModules[0].lessons[0].slug;
+          }
+
           enrollBtn.addEventListener("click", () => {
-            window.location.href = "/dashboard.html";
+            if (firstLessonSlug) {
+              window.location.href = `/lesson?course=${encodeURIComponent(slug)}&lesson=${encodeURIComponent(firstLessonSlug)}`;
+            } else {
+              window.location.href = "/dashboard.html";
+            }
           });
+
           progressEl.textContent = `${existing.progress.percent}%`;
           enrollStatus.textContent = `You're enrolled — ${existing.progress.completed}/${existing.progress.total} lessons complete.`;
         } else {
           enrollBtn.textContent = "Enroll Now";
           enrollBtn.disabled = false;
+          enrollStatus.textContent = "Ready to start learning?";
           
-          enrollBtn.addEventListener("click", async () => {
+          enrollBtn.onclick = async () => {
             enrollBtn.disabled = true;
             enrollBtn.textContent = "Enrolling...";
             try {
-              // Bypassing api.js to guarantee the payload
-              const csrfRes = await fetch("/api/auth/csrf");
-              const csrfData = await csrfRes.json();
-              
               const response = await fetch("/api/enrollments", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  "X-CSRF-Token": csrfData.csrfToken
+                  "X-CSRF-Token": csrfToken
                 },
                 body: JSON.stringify({ slug: slug })
               });
@@ -190,13 +215,14 @@
               const data = await response.json();
               if (!response.ok) throw new Error(data.message || "Enrollment failed");
 
-              window.location.href = "/dashboard.html";
-            } catch (err) {
-              enrollStatus.textContent = err.message;
+              // If enrolling fresh, reload the page to show the "Continue learning" state
+              window.location.reload();
+            } catch (enrollErr) {
+              enrollStatus.textContent = enrollErr.message;
               enrollBtn.disabled = false;
               enrollBtn.textContent = "Enroll Now";
             }
-          });
+          };
         }
       } catch (err) {
         enrollBtn.textContent = "Enroll Now";
@@ -204,7 +230,7 @@
         enrollStatus.textContent = "Could not check enrollment status.";
       }
 
-      // ---- Certificate eligibility / claim ----
+      // 4. Certificate Eligibility
       if (isEnrolled) {
         try {
           const certsRes = await apiRequest("/api/certificates");
@@ -214,12 +240,10 @@
 
           if (existingCert) {
             certArea.innerHTML = `
-              <a href="/api/certificates/${encodeURIComponent(existingCert.certificateId)}/download"
-                 class="btn btn-primary" style="width:100%;">
+              <a href="/api/certificates/${encodeURIComponent(existingCert.certificateId)}/download" class="btn btn-primary" style="width:100%;">
                 🎓 Download Certificate
               </a>
-              <a href="/verify-certificate.html?id=${encodeURIComponent(existingCert.certificateId)}"
-                 class="btn btn-secondary mt-2" style="width:100%;">
+              <a href="/verify-certificate.html?id=${encodeURIComponent(existingCert.certificateId)}" class="btn btn-secondary mt-2" style="width:100%;">
                 Verify Certificate
               </a>
             `;
@@ -237,32 +261,21 @@
               btn.disabled = true;
               status.textContent = "Checking eligibility...";
               try {
-                const csrfRes = await fetch("/api/auth/csrf");
-                const csrfData = await csrfRes.json();
-                
-                const response = await fetch("/api/certificates/issue", {
+                const res = await apiRequest("/api/certificates/issue", {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-Token": csrfData.csrfToken
-                  },
-                  body: JSON.stringify({ courseId })
+                  body: { courseId }
                 });
-                
-                const res = await response.json();
-                if (!response.ok) throw new Error(res.message || "Not eligible yet.");
-
                 status.textContent = "✅ Issued! Starting download...";
                 setTimeout(() => {
                   window.location.href = `/api/certificates/${encodeURIComponent(res.certificate.certificateId)}/download`;
                 }, 800);
               } catch (err) {
-                status.textContent = "❌ " + err.message;
+                status.textContent = "❌ " + (err.message || "Not eligible yet.");
                 btn.disabled = false;
               }
             });
           }
-        } catch {
+        } catch (err) {
           certArea.innerHTML = "";
         }
       }

@@ -1,6 +1,5 @@
 // ============================================================
 // src/app.js
-// Builds and returns the configured Express application.
 // ============================================================
 
 const path = require("path");
@@ -52,7 +51,6 @@ function createApp() {
     if (!req.session.userId) {
       try {
         const User = require("./models/User");
-        // Find or create a default guest account
         let guest = await User.findOne({ email: "guest@kelvinbootcamp.com" });
         if (!guest) {
           guest = await User.create({
@@ -62,7 +60,6 @@ function createApp() {
             role: "student",
           });
         }
-        // Assign the guest session
         req.session.userId = guest._id.toString();
         req.session.role = guest.role;
       } catch (err) {
@@ -75,7 +72,7 @@ function createApp() {
   // ---- Global API rate limit ----
   app.use("/api", apiLimiter);
 
-  // ---- CSRF protection on state-changing requests ----
+  // ---- CSRF protection (skips GET requests automatically) ----
   app.use("/api", verifyCsrf);
 
   // ---- Static assets ----
@@ -94,7 +91,7 @@ function createApp() {
   app.use("/api/certificates", certificateRoutes);
   app.use("/api/admin", adminRoutes);
 
-  // ---- HTML page routes (clean URLs) ----
+  // ---- HTML page routes ----
   const sendPage = (file) => (req, res) =>
     res.sendFile(path.join(__dirname, "..", "public", file));
 
@@ -106,11 +103,8 @@ function createApp() {
   app.get("/final-exam", sendPage("final-exam.html"));
   app.get("/exam-results", sendPage("exam-results.html"));
   app.get("/certificates", sendPage("certificates.html"));
-  
-  // Both routes serve the same verification page
   app.get("/verify-certificate", sendPage("verify-certificate.html"));
   app.get("/verify", sendPage("verify-certificate.html")); 
-
   app.get("/about", sendPage("about.html"));
   app.get("/contact", sendPage("contact.html"));
   app.get("/dashboard", sendPage("dashboard.html"));
@@ -122,10 +116,10 @@ function createApp() {
   app.get("/admin/manage-certificates", sendPage("manage-certificates.html"));
   app.get("/admin/manage-exams", sendPage("manage-exams.html"));
 
-  // ---- API 404 (JSON) ----
+  // ---- API 404 ----
   app.use("/api", notFound);
 
-  // ---- Page 404 (branded HTML) ----
+  // ---- Page 404 ----
   app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "..", "public", "404.html"));
   });

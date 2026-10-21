@@ -1,3 +1,10 @@
+// ============================================================
+// src/routes/enrollments.js
+// POST   /api/enrollments            → enroll in a course
+// GET    /api/enrollments            → my enrollments
+// DELETE /api/enrollments/:courseId  → drop a course
+// ============================================================
+
 const express = require("express");
 const router = express.Router();
 
@@ -13,9 +20,10 @@ router.post(
   "/",
   requireAuth,
   asyncHandler(async (req, res, next) => {
-    // Look in body, then query, just to be safe
-    const courseId = req.body?.courseId || req.query?.courseId;
-    const slug = req.body?.slug || req.query?.slug;
+    // 1. Safe extraction of body data
+    const body = req.body || {};
+    const courseId = body.courseId;
+    const slug = body.slug;
 
     if (!courseId && !slug) {
       const err = new Error("courseId or slug is required");
@@ -23,19 +31,22 @@ router.post(
       return next(err);
     }
 
+    // 2. Find the course by either ID or slug
     let course;
-    if (courseId) {
+    if (courseId && courseId !== "undefined" && courseId !== "null") {
       course = await Course.findById(courseId);
-    } else if (slug) {
+    }
+    if (!course && slug) {
       course = await Course.findOne({ slug: slug });
     }
 
-    if (!course) {
-      const err = new Error("Course not found");
+    if (!course || !course.isPublished) {
+      const err = new Error("Course not found or is unpublished");
       err.statusCode = 404;
       return next(err);
     }
 
+    // 3. Check if already enrolled
     const existing = await Enrollment.findOne({
       studentId: req.user._id,
       courseId: course._id,
@@ -49,6 +60,7 @@ router.post(
       });
     }
 
+    // 4. Create enrollment
     const enrollment = await Enrollment.create({
       studentId: req.user._id,
       courseId: course._id,
@@ -117,7 +129,7 @@ router.get(
 
     res.json({
       success: true,
-      count: enriched.length,
+      count: enriched.filter(Boolean).length,
       enrollments: enriched.filter(Boolean),
     });
   })

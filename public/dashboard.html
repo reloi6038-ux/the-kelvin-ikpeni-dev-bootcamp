@@ -149,10 +149,11 @@
         if (!list.enrollments || list.enrollments.length === 0) {
           grid.innerHTML = `<div class="state-message" style="grid-column: 1 / -1;">You haven't enrolled in any courses yet.<br><a href="/courses.html" class="btn btn-primary mt-4">Browse courses →</a></div>`;
         } else {
+          // FIX: Changed href to /course-details?slug= (clean URL)
           grid.innerHTML = list.enrollments.map((enr) => {
             const p = enr.progress;
             return `
-              <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(enr.course.slug)}">
+              <a class="course-card" href="/course-details?slug=${encodeURIComponent(enr.course.slug)}">
                 <span class="course-card-level ${escapeHtml(enr.course.level)}">${escapeHtml(enr.course.level)}</span>
                 <h3>${escapeHtml(enr.course.title)}</h3>
                 <p class="course-card-desc">${escapeHtml(enr.course.description)}</p>

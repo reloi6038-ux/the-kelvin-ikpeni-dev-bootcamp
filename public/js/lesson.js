@@ -21,7 +21,6 @@
   const breadcrumb = document.getElementById("breadcrumb");
   const markBar = document.getElementById("mark-complete-bar");
   const navEl = document.getElementById("lesson-nav");
-  const ideRoot = document.getElementById("ide-root");
 
   if (!courseSlug || !lessonSlug) {
     showFatal("Invalid lesson URL — course and lesson are required.");
@@ -30,6 +29,8 @@
 
   function renderMarkdown(md) {
     let html = escapeHtml(md || "");
+
+    // 1. Fenced code blocks
     const codeBlocks = [];
     html = html.replace(/```([\s\S]*?)```/g, (_, code) => {
       const token = `@@CODEBLOCK${codeBlocks.length}@@`;
@@ -37,6 +38,7 @@
       return token;
     });
 
+    // 2. Tables
     const tables = [];
     html = html.replace(/((?:^\|.+\|\n)+)/gm, (block) => {
       const lines = block.trim().split("\n").filter(Boolean);
@@ -59,18 +61,21 @@
       return token;
     });
 
+    // 3. Headings (Convert H1 to H2 to avoid page title conflict)
     html = html
       .replace(/^###### (.+)$/gm, "<h6>$1</h6>")
       .replace(/^##### (.+)$/gm, "<h5>$1</h5>")
       .replace(/^#### (.+)$/gm, "<h4>$1</h4>")
       .replace(/^### (.+)$/gm, "<h3>$1</h3>")
       .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-      .replace(/^# (.+)$/gm, "<h1>$1</h1>");
+      .replace(/^# (.+)$/gm, "<h2>$1</h2>"); // Changed H1 to H2
 
+    // 4. Bold, inline code, links
     html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
+    // 5. Lists
     html = html.replace(/(?:^[-*] .+\n?)+/gm, (block) => {
       const items = block
         .trim()
@@ -91,6 +96,7 @@
       return `<ol>${items}</ol>`;
     });
 
+    // 6. Paragraphs
     html = html
       .split(/\n{2,}/)
       .map((block) => {
@@ -100,6 +106,7 @@
       })
       .join("\n");
 
+    // Restore code blocks and tables
     html = html.replace(/@@CODEBLOCK(\d+)@@/g, (_, i) => codeBlocks[i]);
     html = html.replace(/@@TABLE(\d+)@@/g, (_, i) => tables[i]);
 
@@ -120,36 +127,34 @@
     loadTree();
   };
 
-  // --- Load everything ---
   (async function load() {
     try {
       const data = await apiRequest(
         `/api/lessons/${encodeURIComponent(courseSlug)}/${encodeURIComponent(lessonSlug)}`
       );
 
-      const { course, lesson, previous, next, position, completed, enrolled } = data;
+      const { course, lesson, previous, next, position, completed } = data;
 
-      // Header
       document.title = `${lesson.title} — ${course.title}`;
       titleEl.textContent = lesson.title;
       durationEl.textContent = `⏱ ${lesson.estimatedMinutes} min read`;
       positionEl.textContent = `Lesson ${position.index} of ${position.total}`;
+      
+      // Render the content (H1s inside will now be H2s)
       contentEl.innerHTML = renderMarkdown(lesson.content || "");
 
-      // Breadcrumb
       breadcrumb.innerHTML = `
         <a href="/courses.html">Courses</a>
         <span>›</span>
-        <a href="/course-details.html?slug=${encodeURIComponent(course.slug)}">${escapeHtml(course.title)}</a>
+        <a href="/course-details?slug=${encodeURIComponent(course.slug)}">${escapeHtml(course.title)}</a>
         <span>›</span>
         <span>${escapeHtml(lesson.title)}</span>
       `;
 
-      // Prev / next
       navEl.innerHTML = "";
       if (previous) {
         navEl.innerHTML += `
-          <a class="lesson-nav-btn prev" href="/lesson.html?course=${encodeURIComponent(course.slug)}&lesson=${encodeURIComponent(previous.slug)}">
+          <a class="lesson-nav-btn prev" href="/lesson?course=${encodeURIComponent(course.slug)}&lesson=${encodeURIComponent(previous.slug)}">
             <span class="label">← Previous</span>
             <span class="title">${escapeHtml(previous.title)}</span>
           </a>`;
@@ -158,26 +163,24 @@
       }
       if (next) {
         navEl.innerHTML += `
-          <a class="lesson-nav-btn next" href="/lesson.html?course=${encodeURIComponent(course.slug)}&lesson=${encodeURIComponent(next.slug)}">
+          <a class="lesson-nav-btn next" href="/lesson?course=${encodeURIComponent(course.slug)}&lesson=${encodeURIComponent(next.slug)}">
             <span class="label">Next →</span>
             <span class="title">${escapeHtml(next.title)}</span>
           </a>`;
       }
 
-      // Mount IDE if exercise enabled and fully loaded
+      // Mount IDE if exercise enabled
       if (lesson.exercise && lesson.exercise.enabled && window.ideController) {
         await window.ideController.mount(lesson);
       }
 
       // Mark complete bar
       if (completed) {
-        markBar.innerHTML = `
-          <p style="margin:0; color: var(--success); font-weight:600;">✅ You've completed this lesson</p>`;
+        markBar.innerHTML = `<p style="margin:0; color: var(--success); font-weight:600;">✅ You've completed this lesson</p>`;
       } else if (lesson.exercise && lesson.exercise.enabled) {
         markBar.style.display = "none";
       } else {
-        markBar.innerHTML = `
-          <button class="btn btn-primary" id="mark-complete-btn">Mark as complete</button>`;
+        markBar.innerHTML = `<button class="btn btn-primary" id="mark-complete-btn">Mark as complete</button>`;
         const btn = document.getElementById("mark-complete-btn");
         
         btn.addEventListener("click", async () => {
@@ -189,10 +192,7 @@
 
             const response = await fetch("/api/progress", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": csrfData.csrfToken
-              },
+              headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfData.csrfToken },
               body: JSON.stringify({ lessonId: lesson._id })
             });
 
@@ -218,7 +218,6 @@
     }
   })();
 
-  // --- Sidebar tree ---
   async function loadTree() {
     try {
       const tree = await apiRequest(`/api/lessons/${encodeURIComponent(courseSlug)}`);
@@ -232,7 +231,7 @@
               const isComplete = completedSet.has(l._id);
               return `
                 <li>
-                  <a href="/lesson.html?course=${encodeURIComponent(courseSlug)}&lesson=${encodeURIComponent(l.slug)}"
+                  <a href="/lesson?course=${encodeURIComponent(courseSlug)}&lesson=${encodeURIComponent(l.slug)}"
                      class="${isCurrent ? "active" : ""} ${isComplete ? "completed" : ""}">
                     <span class="lesson-check">${isComplete ? "✅" : "○"}</span>
                     <span>${escapeHtml(l.title)}</span>

@@ -81,12 +81,12 @@
       if (!grid) return;
       try {
         const data = await apiRequest("/api/courses");
-        // Pick 3 distinct featured courses (e.g., HTML5, JavaScript, Advanced API)
         const featuredSlugs = ["html5", "javascript", "advanced-api-development"];
         const featured = data.courses.filter(c => featuredSlugs.includes(c.slug));
         
+        // FIX: Changed href to /course-details?slug= (clean URL)
         grid.innerHTML = featured.map(c => `
-          <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(c.slug)}">
+          <a class="course-card" href="/course-details?slug=${encodeURIComponent(c.slug)}">
             <span class="course-card-level ${escapeHtml(c.level)}">${escapeHtml(c.level)}</span>
             <h3>${escapeHtml(c.title)}</h3>
             <p class="course-card-desc">${escapeHtml(c.description)}</p>

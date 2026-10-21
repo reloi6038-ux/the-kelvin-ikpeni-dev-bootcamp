@@ -108,8 +108,9 @@
         loading.style.display = "none";
         content.style.display = "block";
 
+        // FIX: Changed href to /course-details?slug= (clean URL)
         const renderCards = (list) => list.map(c => `
-          <a class="course-card" href="/course-details.html?slug=${encodeURIComponent(c.slug)}">
+          <a class="course-card" href="/course-details?slug=${encodeURIComponent(c.slug)}">
             <span class="course-card-level ${escapeHtml(c.level)}">${escapeHtml(c.level)}</span>
             <h3>${escapeHtml(c.title)}</h3>
             <p class="course-card-desc">${escapeHtml(c.description)}</p>
