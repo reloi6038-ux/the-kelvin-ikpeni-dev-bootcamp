@@ -24,6 +24,7 @@ const paths = [
   require("./path-18-backend-architecture"),
   require("./path-19-express-mastery"),
   require("./path-20-beginner-backend"),
+  require("./path-21-advanced-api"),
 ];
 
 module.exports = paths;
