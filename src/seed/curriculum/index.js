@@ -21,6 +21,7 @@ const paths = [
   require("./path-15-advanced"),
   require("./path-16-capstone"),
   require("./path-17-first-fullstack"),
+  require("./path-18-backend-architecture"),
 ];
 
 module.exports = paths;
