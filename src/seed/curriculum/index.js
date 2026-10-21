@@ -23,6 +23,7 @@ const paths = [
   require("./path-17-first-fullstack"),
   require("./path-18-backend-architecture"),
   require("./path-19-express-mastery"),
+  require("./path-20-beginner-backend"),
 ];
 
 module.exports = paths;
