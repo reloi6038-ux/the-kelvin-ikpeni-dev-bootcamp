@@ -97,12 +97,12 @@
         if (!user) return;
 
         // Set Welcome message
-        const displayName = user.name === "Guest Student" ? "" : user.name;
+        const displayName = user.name === "Guest Student" || !user.name ? "" : user.name;
         welcome.textContent = displayName ? `Welcome, ${displayName}!` : "Welcome to your Dashboard!";
         nameInput.value = displayName;
 
-        document.getElementById("profile-email").textContent = user.email;
-        document.getElementById("profile-role").textContent = user.role;
+        document.getElementById("profile-email").textContent = user.email || "—";
+        document.getElementById("profile-role").textContent = user.role || "—";
         document.getElementById("profile-joined").textContent = user.createdAt
           ? new Date(user.createdAt).toLocaleDateString()
           : "—";
@@ -114,6 +114,7 @@
           
           saveBtn.disabled = true;
           saveBtn.textContent = "Saving...";
+          nameStatus.textContent = "";
           
           try {
             const csrfRes = await fetch("/api/auth/csrf");
@@ -128,17 +129,19 @@
               body: JSON.stringify({ name: newName })
             });
             
+            const data = await response.json();
+            
             if (response.ok) {
+              nameStatus.style.color = "var(--success)";
               nameStatus.textContent = "✅ Name saved successfully!";
               welcome.textContent = `Welcome, ${newName}!`;
               setTimeout(() => nameStatus.textContent = "", 3000);
             } else {
-              nameStatus.style.color = "var(--danger)";
-              nameStatus.textContent = "Failed to save name.";
+              throw new Error(data.message || "Failed to save name.");
             }
           } catch (e) {
             nameStatus.style.color = "var(--danger)";
-            nameStatus.textContent = "Error saving name.";
+            nameStatus.textContent = "❌ " + e.message;
           } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = "Save";
@@ -147,9 +150,9 @@
 
         // ---- Load enrolled courses ----
         const grid = document.getElementById("enrolled-grid");
-        const list = await enrollment.list();
+        const list = await apiRequest("/api/enrollments");
 
-        if (!list.enrollments.length) {
+        if (!list.enrollments || list.enrollments.length === 0) {
           grid.innerHTML = `
             <div class="state-message" style="grid-column: 1 / -1;">
               You haven't enrolled in any courses yet.
@@ -200,6 +203,7 @@
                     <div class="course-card-icon" aria-hidden="true">🎓</div>
                     <h3>${escapeHtml(c.courseTitle)}</h3>
                     <p class="course-card-desc">
+                      <strong>${c.type === "accomplishment" ? "Statement of Accomplishment" : "Certificate of Completion"}</strong><br>
                       Awarded to <strong>${escapeHtml(c.studentName)}</strong><br>
                       Issued: ${new Date(c.issuedAt).toLocaleDateString()}<br>
                       ${c.revoked ? `<span style="color: var(--danger);">⚠ Revoked</span>` : `<span style="color: var(--success);">✓ Valid</span>`}

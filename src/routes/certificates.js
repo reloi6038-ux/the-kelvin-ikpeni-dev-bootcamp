@@ -81,19 +81,15 @@ router.post(
       return next(err);
     }
 
-    // --- Eligibility check 3: passed at least one exam for this course ---
+    // --- Eligibility check 3: did they pass the exam? ---
+    // If they passed, it's an Accomplishment. If not, it's a Completion.
     const passedAttempt = await ExamAttempt.findOne({
       studentId: req.user._id,
       courseId: course._id,
       passed: true,
     });
-    if (!passedAttempt) {
-      const err = new Error(
-        "You must pass the final examination before claiming your certificate"
-      );
-      err.statusCode = 403;
-      return next(err);
-    }
+    
+    const certType = passedAttempt ? "accomplishment" : "completion";
 
     // --- Issue ---
     const certificate = await Certificate.create({
@@ -102,6 +98,7 @@ router.post(
       courseId: course._id,
       studentName: req.user.name,
       courseTitle: course.title,
+      type: certType,
       issuedAt: new Date(),
       revoked: false,
     });
@@ -127,8 +124,11 @@ router.get(
 router.get(
   "/verify/:id",
   asyncHandler(async (req, res) => {
+    // Enforce uppercase to ensure KIDB-2026-abc matches KIDB-2026-ABC
+    const searchId = req.params.id.toUpperCase();
+    
     const cert = await Certificate.findOne({
-      certificateId: req.params.id,
+      certificateId: searchId,
     }).lean();
 
     if (!cert) {
@@ -146,6 +146,7 @@ router.get(
         certificateId: cert.certificateId,
         studentName: cert.studentName,
         courseTitle: cert.courseTitle,
+        type: cert.type,
         issuedAt: cert.issuedAt,
         revoked: cert.revoked,
         revokedAt: cert.revokedAt,
@@ -161,7 +162,7 @@ router.get(
   requireAuth,
   asyncHandler(async (req, res, next) => {
     const cert = await Certificate.findOne({
-      certificateId: req.params.id,
+      certificateId: req.params.id.toUpperCase(),
     });
 
     if (!cert) {
@@ -206,7 +207,7 @@ router.post(
       return next(err);
     }
 
-    const cert = await Certificate.findOne({ certificateId: req.params.id });
+    const cert = await Certificate.findOne({ certificateId: req.params.id.toUpperCase() });
     if (!cert) {
       const err = new Error("Certificate not found");
       err.statusCode = 404;

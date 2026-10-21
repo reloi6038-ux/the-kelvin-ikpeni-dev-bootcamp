@@ -1,8 +1,3 @@
-// ============================================================
-// public/js/certificates.js
-// List student certificates, download, share verify link.
-// ============================================================
-
 (function () {
   "use strict";
 
@@ -43,6 +38,7 @@
               <div class="course-card-icon" aria-hidden="true">🎓</div>
               <h3>${escapeHtml(c.courseTitle)}</h3>
               <p class="course-card-desc">
+                <strong>${c.type === "accomplishment" ? "Statement of Accomplishment" : "Certificate of Completion"}</strong><br>
                 Awarded to <strong>${escapeHtml(c.studentName)}</strong><br>
                 Issued: ${escapeHtml(issued)}<br>
                 Status: ${status}

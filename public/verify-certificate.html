@@ -23,22 +23,24 @@
   </header>
 
   <main>
-    <section class="section" style="padding-top: var(--sp-10);">
+    <section class="section" style="padding-top: var(--sp-10); min-height: 70vh;">
       <div class="container" style="max-width: 640px;">
+        
         <div style="text-align:center; margin-bottom: var(--sp-8);">
           <h1>Certificate Verification</h1>
-          <p style="color: var(--text-muted);">Enter a certificate ID to verify its authenticity.</p>
+          <p style="color: var(--text-muted);">Enter a certificate ID below to verify its authenticity.</p>
         </div>
 
         <form id="verify-form" class="form">
           <div class="form-group">
             <label for="cert-id">Certificate ID</label>
-            <input type="text" id="cert-id" name="id" placeholder="KIDB-2026-A1B2C3" required />
+            <input type="text" id="cert-id" name="id" placeholder="e.g. KIDB-2026-A1B2C3" required style="text-transform: uppercase;" />
           </div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Verify</button>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Verify Certificate</button>
         </form>
 
         <div id="verify-result" style="margin-top: var(--sp-6);"></div>
+        
       </div>
     </section>
   </main>
@@ -60,43 +62,55 @@
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        verify(input.value.trim());
+        const id = input.value.trim();
+        if (id) verify(id);
       });
 
       async function verify(id) {
-        if (!id) return;
         result.innerHTML = `<div class="state-message"><div class="spinner"></div><p>Verifying...</p></div>`;
+        
         try {
           const data = await apiRequest(`/api/certificates/verify/${encodeURIComponent(id)}`);
           const c = data.certificate;
 
           if (c.revoked) {
+            // Revoked Certificate UI
             result.innerHTML = `
-              <div class="course-card" style="border-color: var(--danger); padding: var(--sp-6);">
+              <div class="course-card" style="border: 2px solid var(--danger); padding: var(--sp-6); text-align: center;">
                 <h2 style="color: var(--danger); margin: 0 0 var(--sp-3);">⚠ Certificate Revoked</h2>
-                <p><strong>${escapeHtml(c.studentName)}</strong> — ${escapeHtml(c.courseTitle)}</p>
-                <p style="color: var(--text-muted);">
-                  This certificate was revoked on
-                  ${new Date(c.revokedAt).toLocaleDateString()}.
+                <p style="font-size: 1.1rem;"><strong>${escapeHtml(c.studentName)}</strong></p>
+                <p style="color: var(--text-muted);">${escapeHtml(c.courseTitle)}</p>
+                <p style="color: var(--text-muted); margin-top: var(--sp-4);">
+                  This certificate was officially revoked on <strong>${new Date(c.revokedAt).toLocaleDateString()}</strong>.
                 </p>
-                ${c.revocationReason ? `<p style="color: var(--text-muted);">Reason: ${escapeHtml(c.revocationReason)}</p>` : ""}
-                <p style="font-family: var(--font-mono);">${escapeHtml(c.certificateId)}</p>
+                ${c.revocationReason ? `<p style="color: var(--danger); margin-top: var(--sp-2);">Reason: ${escapeHtml(c.revocationReason)}</p>` : ""}
+                <p style="font-family: var(--font-mono); margin-top: var(--sp-4); color: var(--text-dim);">${escapeHtml(c.certificateId)}</p>
               </div>`;
           } else {
+            // Valid Certificate UI
             result.innerHTML = `
-              <div class="course-card" style="border-color: var(--success); padding: var(--sp-6);">
-                <h2 style="color: var(--success); margin: 0 0 var(--sp-3);">✓ Valid Certificate</h2>
-                <p><strong>Awarded to:</strong> ${escapeHtml(c.studentName)}</p>
-                <p><strong>Course:</strong> ${escapeHtml(c.courseTitle)}</p>
-                <p><strong>Issued:</strong> ${new Date(c.issuedAt).toLocaleDateString()}</p>
-                <p style="font-family: var(--font-mono); color: var(--primary);">${escapeHtml(c.certificateId)}</p>
+              <div class="course-card" style="border: 2px solid var(--success); padding: var(--sp-6); text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: var(--sp-2);">✅</div>
+                <h2 style="color: var(--success); margin: 0 0 var(--sp-3);">Valid Certificate</h2>
+                <p style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; margin-bottom: var(--sp-1);">
+                  ${c.type === "accomplishment" ? "Statement of Accomplishment" : "Certificate of Completion"}
+                </p>
+                <p style="font-size: 1.4rem; font-weight: 700; margin: var(--sp-2) 0;">${escapeHtml(c.studentName)}</p>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">${escapeHtml(c.courseTitle)}</p>
+                <p style="color: var(--text-muted); margin-top: var(--sp-4);">
+                  Issued on <strong>${new Date(c.issuedAt).toLocaleDateString()}</strong>
+                </p>
+                <p style="font-family: var(--font-mono); color: var(--primary); margin-top: var(--sp-4);">${escapeHtml(c.certificateId)}</p>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: var(--sp-6);">Verified against The Kelvin Ikpeni Dev Bootcamp records.</p>
               </div>`;
           }
         } catch (err) {
+          // Not Found UI
           result.innerHTML = `
-            <div class="course-card" style="border-color: var(--danger); padding: var(--sp-6);">
-              <h2 style="color: var(--danger); margin: 0 0 var(--sp-3);">✗ Certificate Not Found</h2>
-              <p style="color: var(--text-muted);">${escapeHtml(err.message || "No certificate matches this ID.")}</p>
+            <div class="course-card" style="border: 2px solid var(--border); padding: var(--sp-6); text-align: center;">
+              <h2 style="color: var(--text-muted); margin: 0 0 var(--sp-3);">✗ Not Found</h2>
+              <p style="color: var(--text-muted);">No certificate matches this ID in our system.</p>
+              <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: var(--sp-4);">Please check the ID and try again.</p>
             </div>`;
         }
       }

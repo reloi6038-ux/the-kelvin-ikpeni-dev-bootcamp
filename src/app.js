@@ -106,7 +106,11 @@ function createApp() {
   app.get("/final-exam", sendPage("final-exam.html"));
   app.get("/exam-results", sendPage("exam-results.html"));
   app.get("/certificates", sendPage("certificates.html"));
+  
+  // Both routes serve the same verification page
   app.get("/verify-certificate", sendPage("verify-certificate.html"));
+  app.get("/verify", sendPage("verify-certificate.html")); 
+
   app.get("/about", sendPage("about.html"));
   app.get("/contact", sendPage("contact.html"));
   app.get("/dashboard", sendPage("dashboard.html"));

@@ -16,6 +16,11 @@ const certificateSchema = new mongoose.Schema(
     },
     studentName: { type: String, required: true },
     courseTitle: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["completion", "accomplishment"],
+      default: "completion",
+    },
     issuedAt: { type: Date, default: Date.now },
     revoked: { type: Boolean, default: false, index: true },
     revokedAt: Date,
