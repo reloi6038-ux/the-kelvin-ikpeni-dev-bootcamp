@@ -31,14 +31,15 @@
   </header>
 
   <main>
+    <!-- Hero Section -->
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-eyebrow">
-          <span>🚀 26 Courses · 200+ Lessons · Production Ready</span>
+          <span>🚀 34 Courses · 350+ Lessons · Production Ready</span>
         </div>
         <h1>Master Full-Stack Development.</h1>
         <p class="hero-lead">
-          A complete, hands-on curriculum from computer fundamentals to advanced backend architecture. Learn by building real projects, writing code in the browser, and earning verifiable certificates.
+          A complete, hands-on curriculum from computer fundamentals to advanced backend architecture, React, and modern frontend frameworks. Learn by building real projects, writing code in the browser, and earning verifiable certificates.
         </p>
         <div class="hero-actions">
           <a href="/courses.html" class="btn btn-primary btn-lg">Start Learning</a>
@@ -47,6 +48,7 @@
       </div>
     </section>
 
+    <!-- Featured Courses -->
     <section class="section">
       <div class="container">
         <div class="section-header">
@@ -54,10 +56,10 @@
           <p>Start with the fundamentals, then build up to professional engineering.</p>
         </div>
         <div class="courses-grid" id="featured-grid">
-          <!-- Filled by JS -->
+          <!-- Filled by JavaScript -->
         </div>
         <div class="text-center mt-8">
-          <a href="/courses.html" class="btn btn-secondary btn-lg">View all 26 courses →</a>
+          <a href="/courses.html" class="btn btn-secondary btn-lg">View all 34 courses →</a>
         </div>
       </div>
     </section>
@@ -86,9 +88,17 @@
     (async function () {
       const grid = document.getElementById("featured-grid");
       if (!grid) return;
+      
       try {
         const data = await apiRequest("/api/courses");
-        const featuredSlugs = ["html5", "javascript", "advanced-api-development"];
+        
+        // Pick 3 distinct featured courses to showcase the platform's range
+        const featuredSlugs = [
+          "reactjs-development",          // Advanced Frontend
+          "beginner-backend-development", // Absolute Beginner
+          "advanced-fullstack"            // Expert Architecture
+        ];
+        
         const featured = data.courses.filter(c => featuredSlugs.includes(c.slug));
         
         grid.innerHTML = featured.map(c => `
