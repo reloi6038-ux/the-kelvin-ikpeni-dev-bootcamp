@@ -32,6 +32,7 @@ const paths = [
   require("./path-26-deployment"),
   require("./path-27-beginner-frontend"),
   require("./path-28-intermediate-frontend"),
+  require("./path-29-frontend-tooling"),
 ];
 
 module.exports = paths;
