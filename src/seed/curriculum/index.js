@@ -37,6 +37,7 @@ const paths = [
   require("./path-31-advanced-frontend"),
   require("./path-32-connecting-frontend-backend"),
   require("./path-33-ui-ux"),
+  require("./path-34-frontend-testing-deployment"),
 ];
 
 module.exports = paths;
