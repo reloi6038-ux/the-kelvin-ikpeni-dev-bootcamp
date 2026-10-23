@@ -38,6 +38,7 @@ const paths = [
   require("./path-32-connecting-frontend-backend"),
   require("./path-33-ui-ux"),
   require("./path-34-frontend-testing-deployment"),
+  require("./path-35-todo-api"),
 ];
 
 module.exports = paths;
