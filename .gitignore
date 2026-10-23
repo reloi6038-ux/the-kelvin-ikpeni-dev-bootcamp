@@ -21,3 +21,4 @@ Thumbs.db
 coverage/
 dist/
 *.tgz
+public/downloads/
