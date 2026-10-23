@@ -22,6 +22,7 @@
         <li><a href="/courses.html">Courses</a></li>
         <li><a href="/about.html">About</a></li>
         <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/download.html">Download App</a></li> <!-- ADDED -->
         <li><a href="/dashboard.html">Dashboard</a></li>
       </ul>
       <div class="nav-cta">
@@ -63,6 +64,17 @@
         </div>
       </div>
     </section>
+
+    <!-- Mobile App Promotion -->
+    <section class="section" style="background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="container" style="text-align: center; max-width: 800px;">
+        <h2>Learn Anywhere with Our Mobile App</h2>
+        <p style="color: var(--text-muted); font-size: 1.15rem; margin-bottom: var(--sp-6);">
+          Take your coding journey on the go. Download the official app for Android today.
+        </p>
+        <a href="/download.html" class="btn btn-primary btn-lg">📱 Download the App</a>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -71,6 +83,7 @@
         <a href="/courses.html">Courses</a>
         <a href="/about.html">About Us</a>
         <a href="/contact.html">Contact</a>
+        <a href="/download.html">Download App</a>
         <a href="/dashboard.html">Dashboard</a>
         <a href="/certificates.html">Certificates</a>
         <a href="/verify-certificate.html">Verify Certificate</a>
@@ -92,8 +105,6 @@
       try {
         const data = await apiRequest("/api/courses");
         
-        // Pick 3 distinct featured courses to showcase the platform's range
-        // including the new guided projects
         const featuredSlugs = [
           "portfolio-project",      // New Guided Project (Beginner)
           "reactjs-development",    // Advanced Frontend
